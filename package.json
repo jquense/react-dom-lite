@@ -6,13 +6,15 @@
   "scripts": {
     "build": "babel src -o lib",
     "watch": "npm run babel -- --watch",
-    "examples": "webpack-dev-server"
+    "examples": "webpack-dev-server",
+    "prettier": "prettier --write src/**/*.js",
+    "precommit": "lint-staged"
+  },
+  "lint-staged": {
+    "*.{js,json,css,md}": ["prettier --write", "git add"]
   },
   "eslintConfig": {
-    "extends": [
-      "jason/react",
-      "prettier"
-    ]
+    "extends": ["jason/react", "prettier"]
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
@@ -22,6 +24,8 @@
     "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-react": "^7.5.1",
+    "husky": "^0.14.3",
+    "lint-staged": "^6.0.0",
     "prettier": "^1.9.1",
     "webpack": "^3.10.0",
     "webpack-atoms": "^4.1.2",

@@ -1,5 +1,3 @@
-
-
 class Root {
   constructor(domRoot, renderer) {
     this.renderer = renderer;
@@ -12,7 +10,7 @@ class Root {
 
   unmount() {
     this.renderer.updateContainer(null, this.internalRoot, null);
-  };
+  }
 }
 
-export default Root
+export default Root;
