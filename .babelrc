@@ -1,1 +1,1 @@
-{"presets":["jason"]}
+{ "presets": [["jason", { "debug": false }]] }

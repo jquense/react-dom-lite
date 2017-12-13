@@ -8,16 +8,30 @@
     "watch": "npm run babel -- --watch",
     "examples": "webpack-dev-server",
     "prettier": "prettier --write src/**/*.js",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged",
+    "test": "jest",
+    "tdd": "jest --watch"
   },
   "lint-staged": {
     "*.{js,json,css,md}": ["prettier --write", "git add"]
   },
+  "jest": {
+    "roots": ["<rootDir>/src"]
+  },
   "eslintConfig": {
-    "extends": ["jason/react", "prettier"]
+    "extends": ["jason/react", "prettier"],
+    "overrides": [
+      {
+        "files": ["**/__tests__/**/*.js"],
+        "env": {
+          "jest": true
+        }
+      }
+    ]
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
+    "babel-jest": "^21.2.0",
     "babel-preset-jason": "^3.1.1",
     "eslint": "^4.12.1",
     "eslint-config-jason": "^4.0.0",
@@ -25,6 +39,7 @@
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-react": "^7.5.1",
     "husky": "^0.14.3",
+    "jest": "^21.2.1",
     "lint-staged": "^6.0.0",
     "prettier": "^1.9.1",
     "webpack": "^3.10.0",
