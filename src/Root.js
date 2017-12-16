@@ -1,10 +1,20 @@
+// @flow
+
+import type { Reconciler } from './reconciler-types';
+
 class Root {
-  constructor(domRoot, renderer) {
+  renderer: Reconciler;
+  internalRoot: any; // TODO: Needs attention!
+
+  constructor(
+    domRoot: DOMContainer & { internalRoot: any },
+    renderer: Reconciler
+  ) {
     this.renderer = renderer;
     this.internalRoot = domRoot;
   }
 
-  render(children) {
+  render(children: React$Element<any>) {
     this.renderer.updateContainer(children, this.internalRoot, null);
   }
 

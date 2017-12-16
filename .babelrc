@@ -1,1 +1,6 @@
-{ "presets": [["jason", { "debug": false }]] }
+{
+  "presets": [
+    "jason",
+    "flow"
+  ]
+}
