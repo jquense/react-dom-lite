@@ -1,9 +1,9 @@
 // @flow
 
 import css from 'dom-helpers/style';
+import invariant from 'invariant';
 import { setValueOnElement, isEventRegex } from './DOMProperties';
 
-const HTML = '__html';
 const isRenderableChild = child =>
   typeof child === 'string' || typeof child === 'number';
 
@@ -42,7 +42,10 @@ export function setInitialProps(domElement: Element, nextProps: Props) {
       propValue &&
       propValue.__html != null
     ) {
-      // $FlowFixMe
+      invariant(
+        typeof propValue === 'object' && typeof propValue.__html === 'string',
+        'The dangerouslySetInnerHTML prop value must be an object with an single __html field'
+      );
       domElement.innerHTML = propValue.__html;
       // Handle when `children` is a renderable (text, number, etc)
     } else if (propKey === 'children') {
@@ -78,10 +81,11 @@ export function diffProps(
   domElement: Element,
   lastProps: Object,
   nextProps: Object
-) {
-  let updatePayload: Array<[string, any]> = [];
+): ?Array<[string, any]> {
+  let updatePayload: ?Array<[string, any]> = null;
 
   let add = (k, v) => {
+    if (!updatePayload) updatePayload = [];
     updatePayload.push([k, v]);
   };
 
@@ -104,10 +108,12 @@ export function diffProps(
     ) {
       continue;
     } else if (propKey === 'dangerouslySetInnerHTML') {
-      // $FlowFixMe diffProperties is supposed to return Array<mixed>
-      const nextHtml = nextProp ? nextProp[HTML] : undefined;
-      // $FlowFixMe
-      const lastHtml = lastProp ? lastProp[HTML] : undefined;
+      invariant(
+        typeof nextProp === 'object',
+        'The dangerouslySetInnerHTML prop value must be an object with an single __html field'
+      );
+      const nextHtml = nextProp ? nextProp.__html : undefined;
+      const lastHtml = lastProp ? lastProp.__html : undefined;
       if (nextHtml != null && lastHtml !== nextHtml) {
         add(propKey, nextHtml);
       }
@@ -135,7 +141,10 @@ export function diffProps(
   return updatePayload;
 }
 
-export function updateProps(domElement: Element, updateQueue: Array<Object>) {
+export function updateProps(
+  domElement: Element,
+  updateQueue: Array<[string, any]>
+) {
   let match;
 
   for (let [propKey, propValue] of updateQueue) {

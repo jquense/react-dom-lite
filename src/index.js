@@ -1,10 +1,10 @@
 // @flow
-import Reconciler from 'react-reconciler';
+
+import Reconciler, { type HostConfig } from 'react-reconciler';
 import getOwnerDocument from 'dom-helpers/ownerDocument';
 
 import Root from './Root';
 import * as DOMComponent from './DOMComponent';
-import type { HostConfig as HC } from './reconciler-types'; // Could be imported from react-reconciler once it exports
 
 function createElement(type, props, rootContainerElement): Element {
   const ownerDocument = getOwnerDocument(rootContainerElement);
@@ -12,7 +12,29 @@ function createElement(type, props, rootContainerElement): Element {
   return domElement;
 }
 
-const HostConfig: HC = {
+const hostConfig: HostConfig<
+  string,
+  Props,
+  Element,
+  Text,
+  Element,
+  Element | Text,
+  Element,
+  any,
+  HostContext,
+  Array<[string, any]>
+> = {
+  getRootHostContext(instance: DOMContainer): HostContext {
+    return '';
+  },
+
+  getChildHostContext(
+    parentHostContext: HostContext,
+    type: string,
+    instance: Element
+  ): HostContext {
+    return '';
+  },
   appendInitialChild(parentInstance: Element, child: Element | Text): void {
     if (parentInstance.appendChild) {
       parentInstance.appendChild(child);
@@ -44,7 +66,7 @@ const HostConfig: HC = {
     return false;
   },
 
-  getPublicInstance(inst: Element): Element {
+  getPublicInstance(inst: Element | Text): Element | Text {
     return inst;
   },
 
@@ -57,8 +79,7 @@ const HostConfig: HC = {
     type: string,
     oldProps: Props,
     newProps: Props
-  ): null | Array<mixed> {
-    // $FlowFixMe
+  ): ?Array<[string, any]> {
     return DOMComponent.diffProps(domElement, oldProps, newProps);
   },
 
@@ -68,14 +89,6 @@ const HostConfig: HC = {
 
   resetTextContent(domElement: Element): void {
     domElement.textContent = '';
-  },
-
-  getRootHostContext(instance: Element): HostContext {
-    return '';
-  },
-
-  getChildHostContext(instance: DOMContainer): HostContext {
-    return '';
   },
 
   shouldSetTextContent(type: string, props: Props): boolean {
@@ -124,8 +137,10 @@ const HostConfig: HC = {
       parentInstance.insertBefore(child, beforeChild);
     },
 
-    commitUpdate(instance: Element, preparedUpdateQueue: Array<mixed>): void {
-      // $FlowFixMe
+    commitUpdate(
+      instance: Element,
+      preparedUpdateQueue: Array<[string, any]>
+    ): void {
       DOMComponent.updateProps(instance, preparedUpdateQueue);
     },
 
@@ -143,18 +158,18 @@ const HostConfig: HC = {
   }
 };
 
-const DOMLiteRenderer = Reconciler(HostConfig);
+const DOMLiteRenderer = Reconciler(hostConfig);
 
 DOMLiteRenderer.injectIntoDevTools({
   bundleType: 1, // 0 for PROD, 1 for DEV
   version: '0.1.0', // version for your renderer
   rendererPackageName: 'custom-renderer', // package name
-  findHostInstanceByFiber: DOMLiteRenderer.findHostInstance // host instance (root)
+  findFiberByHostInstance: DOMLiteRenderer.findHostInstance // host instance (root)
 });
 
 let ContainerMap = new WeakMap();
 function render(elements: React$Element<any>, domContainer: DOMContainer) {
-  const container = DOMLiteRenderer.createContainer(domContainer);
+  const container = DOMLiteRenderer.createContainer(domContainer, false, false);
   const root = new Root(container, DOMLiteRenderer);
 
   ContainerMap.set(domContainer, root);
