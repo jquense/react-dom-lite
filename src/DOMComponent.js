@@ -1,11 +1,18 @@
-import css from 'dom-helpers/style';
+// @flow
 
+import css from 'dom-helpers/style';
 import { setValueOnElement, isEventRegex } from './DOMProperties';
 
+const HTML = '__html';
 const isRenderableChild = child =>
   typeof child === 'string' || typeof child === 'number';
 
-function listenTo(domElement, eventName, value, lastValue) {
+function listenTo(
+  domElement: Element,
+  eventName: string,
+  value: any,
+  lastValue: any
+) {
   let useCapture = false;
 
   if (eventName.endsWith('Capture')) {
@@ -21,8 +28,8 @@ function listenTo(domElement, eventName, value, lastValue) {
   domElement.addEventListener(eventName, value, useCapture);
 }
 
-export function setInitialProps(domElement, nextProps) {
-  Object.entries(nextProps).forEach(([propKey, propValue]) => {
+export function setInitialProps(domElement: Element, nextProps: Props) {
+  Object.entries(nextProps).forEach(([propKey: string, propValue: any]) => {
     let match;
 
     // inline styles!
@@ -35,8 +42,8 @@ export function setInitialProps(domElement, nextProps) {
       propValue &&
       propValue.__html != null
     ) {
-      domElement.innerHtml = propValue.__html;
-
+      // $FlowFixMe
+      domElement.innerHTML = propValue.__html;
       // Handle when `children` is a renderable (text, number, etc)
     } else if (propKey === 'children') {
       // doesn't cover an IE8 issue with textareas
@@ -53,7 +60,7 @@ export function setInitialProps(domElement, nextProps) {
   });
 }
 
-function diffStyle(lastStyle, nextStyle) {
+function diffStyle(lastStyle: any, nextStyle: any) {
   let updates = null;
   if (lastStyle) {
     for (const lastKey in lastStyle) {
@@ -67,15 +74,18 @@ function diffStyle(lastStyle, nextStyle) {
   return Object.assign(updates, nextStyle);
 }
 
-export function diffProps(domElement, lastProps, nextProps) {
-  let updatePayload = null;
+export function diffProps(
+  domElement: Element,
+  lastProps: Object,
+  nextProps: Object
+) {
+  let updatePayload: Array<[string, any]> = [];
 
   let add = (k, v) => {
-    if (!updatePayload) updatePayload = [];
     updatePayload.push([k, v]);
   };
 
-  for (let propKey in Object.keys(lastProps)) {
+  for (let propKey of Object.keys(lastProps)) {
     if (lastProps[propKey] == null || nextProps.hasOwnProperty(propKey)) {
       continue;
     } else if (propKey.match(isEventRegex)) {
@@ -83,7 +93,8 @@ export function diffProps(domElement, lastProps, nextProps) {
     }
   }
 
-  for (let [propKey, nextProp] of Object.entries(nextProps)) {
+  for (let entry of Object.entries(nextProps)) {
+    const [propKey: string, nextProp: any] = entry;
     const lastProp = lastProps[propKey];
 
     if (
@@ -93,9 +104,10 @@ export function diffProps(domElement, lastProps, nextProps) {
     ) {
       continue;
     } else if (propKey === 'dangerouslySetInnerHTML') {
-      const nextHtml = nextProp ? nextProp.__html : undefined;
-      const lastHtml = lastProp ? lastProp.__html : undefined;
-
+      // $FlowFixMe diffProperties is supposed to return Array<mixed>
+      const nextHtml = nextProp ? nextProp[HTML] : undefined;
+      // $FlowFixMe
+      const lastHtml = lastProp ? lastProp[HTML] : undefined;
       if (nextHtml != null && lastHtml !== nextHtml) {
         add(propKey, nextHtml);
       }
@@ -123,7 +135,7 @@ export function diffProps(domElement, lastProps, nextProps) {
   return updatePayload;
 }
 
-export function updateProps(domElement, updateQueue) {
+export function updateProps(domElement: Element, updateQueue: Array<Object>) {
   let match;
 
   for (let [propKey, propValue] of updateQueue) {
@@ -131,7 +143,7 @@ export function updateProps(domElement, updateQueue) {
     if (propKey === 'style') {
       css(domElement, propValue);
     } else if (propKey === 'dangerouslySetInnerHTML') {
-      domElement.innerHtml = propValue.__html;
+      domElement.innerHTML = propValue.__html;
 
       // Handle when `children` is a renderable (text, number, etc)
     } else if (propKey === 'children') {
