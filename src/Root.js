@@ -1,15 +1,13 @@
 // @flow
 
-import type { Reconciler } from './reconciler-types';
+import type { OpaqueRoot } from 'react-reconciler';
+import { DOMLiteRenderer } from './index';
 
 class Root {
-  renderer: Reconciler;
-  internalRoot: any; // TODO: Needs attention!
+  renderer: typeof DOMLiteRenderer;
+  internalRoot: OpaqueRoot;
 
-  constructor(
-    domRoot: DOMContainer & { internalRoot: any },
-    renderer: Reconciler
-  ) {
+  constructor(domRoot: DOMContainer, renderer: typeof DOMLiteRenderer) {
     this.renderer = renderer;
     this.internalRoot = domRoot;
   }

@@ -56,9 +56,9 @@ type ReactPortal = {
 };
 
 declare module 'react-reconciler' {
-  declare type OpaqueHandle = Fiber;
-  declare type OpaqueRoot = FiberRoot;
-  declare type ExpirationTime = number;
+  declare export type OpaqueHandle = Fiber;
+  declare export type OpaqueRoot = FiberRoot;
+  declare export type ExpirationTime = number;
 
   declare export type HostConfig<T, P, I, TI, HI, PI, C, CC, CX, PL> = {
     getRootHostContext(rootContainerInstance: C): CX,

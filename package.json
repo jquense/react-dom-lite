@@ -4,7 +4,7 @@
   "main": "lib/index.js",
   "license": "MIT",
   "scripts": {
-    "build": "babel src -o lib",
+    "build": "babel src --out-dir lib",
     "watch": "npm run babel -- --watch",
     "examples": "webpack-dev-server",
     "prettier": "prettier --write src/**/*.js",
