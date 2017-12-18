@@ -25,6 +25,9 @@
     "parser": "babel-eslint",
     "plugins": ["flowtype"],
     "extends": ["jason/react", "prettier", "plugin:flowtype/recommended"],
+    "globals": {
+      "__DEV__": false
+    },
     "overrides": [
       {
         "files": ["**/__tests__/**/*.js"],

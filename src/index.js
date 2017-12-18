@@ -13,16 +13,16 @@ function createElement(type, props, rootContainerElement): Element {
 }
 
 const hostConfig: HostConfig<
-  string,
-  Props,
-  Element,
-  Text,
-  Element,
-  Element | Text,
-  Element,
-  any,
-  HostContext,
-  Array<[string, any]>
+  string, // T: component type
+  Props, // P: props
+  Element, // I: component instance
+  Text, // TI: component text instance
+  Element, // HI: Hydration Instance
+  Element | Text, // PI: Public instance
+  Element, // C: Container instance
+  any, // Child container instance
+  HostContext, // CX: Host context
+  Array<[string, any]> // PL: prepare update result
 > = {
   getRootHostContext(instance: DOMContainer): HostContext {
     return '';
@@ -35,6 +35,7 @@ const hostConfig: HostConfig<
   ): HostContext {
     return '';
   },
+
   appendInitialChild(parentInstance: Element, child: Element | Text): void {
     if (parentInstance.appendChild) {
       parentInstance.appendChild(child);
@@ -79,8 +80,8 @@ const hostConfig: HostConfig<
     type: string,
     oldProps: Props,
     newProps: Props
-  ): ?Array<[string, any]> {
-    return DOMComponent.diffProps(domElement, oldProps, newProps);
+  ): null | Array<[string, any]> {
+    return DOMComponent.diffProps(domElement, oldProps, newProps) || null;
   },
 
   resetAfterCommit() {
@@ -102,11 +103,43 @@ const hostConfig: HostConfig<
     );
   },
 
-  now: () => {},
+  now() {
+    return typeof performance === 'object' &&
+      typeof performance.now === 'function'
+      ? performance.now()
+      : Date.now();
+  },
 
   useSyncScheduling: true,
+  scheduleDeferredCallback: window.requestIdleCallback,
+  cancelDeferredCallback: window.cancelIdleCallback,
+  shouldDeprioritizeSubtree: (type: string, props: Props) => !!props.hidden,
 
   mutation: {
+    commitUpdate(
+      instance: Element,
+      preparedUpdateQueue: Array<[string, any]>
+    ): void {
+      DOMComponent.updateProps(instance, preparedUpdateQueue);
+    },
+
+    commitMount(
+      instance: Element,
+      type: string,
+      newProps: Props,
+      internalInstanceHandle: any
+    ) {
+      // noop
+    },
+
+    commitTextUpdate(textInstance: Text, oldText: string, newText: string) {
+      textInstance.nodeValue = newText;
+    },
+
+    resetTextContent(domElement: Element): void {
+      domElement.textContent = '';
+    },
+
     appendChild(parentInstance: Element, child: Element | Text): void {
       parentInstance.appendChild(child);
     },
@@ -117,18 +150,6 @@ const hostConfig: HostConfig<
     ): void {
       parentInstance.appendChild(child);
     },
-
-    removeChild(parentInstance: Element, child: Element | Text): void {
-      parentInstance.removeChild(child);
-    },
-
-    removeChildFromContainer(
-      parentInstance: DOMContainer,
-      child: Element | Text
-    ): void {
-      parentInstance.removeChild(child);
-    },
-
     insertBefore(
       parentInstance: Element,
       child: Element | Text,
@@ -137,23 +158,22 @@ const hostConfig: HostConfig<
       parentInstance.insertBefore(child, beforeChild);
     },
 
-    commitUpdate(
-      instance: Element,
-      preparedUpdateQueue: Array<[string, any]>
+    insertInContainerBefore(
+      container: Element,
+      child: Element | Text,
+      beforeChild: Element | Text
     ): void {
-      DOMComponent.updateProps(instance, preparedUpdateQueue);
+      container.insertBefore(child, beforeChild);
     },
 
-    commitMount() {
-      // noop
+    removeChild(parentInstance: Element, child: Element | Text): void {
+      parentInstance.removeChild(child);
     },
-
-    resetTextContent(domElement: Element): void {
-      domElement.textContent = '';
-    },
-
-    commitTextUpdate(textInstance: Text, oldText: string, newText: string) {
-      textInstance.nodeValue = newText;
+    removeChildFromContainer(
+      parentInstance: DOMContainer,
+      child: Element | Text
+    ): void {
+      parentInstance.removeChild(child);
     }
   }
 };
@@ -161,14 +181,14 @@ const hostConfig: HostConfig<
 const DOMLiteRenderer = Reconciler(hostConfig);
 
 DOMLiteRenderer.injectIntoDevTools({
-  bundleType: 1, // 0 for PROD, 1 for DEV
-  version: '0.1.0', // version for your renderer
-  rendererPackageName: 'custom-renderer', // package name
-  findFiberByHostInstance: DOMLiteRenderer.findHostInstance // host instance (root)
+  bundleType: __DEV__ ? 1 : 0,
+  version: '0.1.0',
+  rendererPackageName: 'react-dom-lite',
+  findFiberByHostInstance: DOMLiteRenderer.findHostInstance
 });
 
 let ContainerMap = new WeakMap();
-function render(elements: React$Element<any>, domContainer: DOMContainer) {
+function render(elements: React$Element<any>, domContainer: Element) {
   const container = DOMLiteRenderer.createContainer(domContainer, false, false);
   const root = new Root(container, DOMLiteRenderer);
 
