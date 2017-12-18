@@ -4,6 +4,7 @@
   "extends": ["jason/react", "prettier", "plugin:flowtype/recommended"],
   "globals": {
     "__DEV__": false,
+    "__SVG__": false,
     "performance": false
   },
   "env": {

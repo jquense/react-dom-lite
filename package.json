@@ -9,7 +9,7 @@
       "ROLLUP=1 NODE_ENV=production rollup -c scripts/rollup.config.js",
     "build": "npm run build:dev && npm run build:prod",
     "watch": "npm run babel -- --watch",
-    "examples": "webpack-dev-server",
+    "examples": "NODE_ENV=production webpack --bail",
     "prettier": "prettier --write src/**/*.js",
     "precommit": "lint-staged",
     "pretest": "npm run flow && eslint src test",
@@ -23,6 +23,7 @@
     "src/**/*.{js}": ["eslint"],
     "*.{js,json,css,md}": ["prettier --write", "git add"]
   },
+  "eslintIgnore": ["flow-typed"],
   "jest": {
     "roots": ["<rootDir>/src"],
     "setupFiles": ["./test/setup.js"],
@@ -63,6 +64,7 @@
     "rollup-plugin-commonjs": "^8.3.0",
     "rollup-plugin-replace": "^2.0.0",
     "sinon": "^4.2.2",
+    "invariant": "^2.2.2",
     "webpack": "^3.10.0",
     "webpack-atoms": "^5.0.0",
     "webpack-dev-server": "^2.11.1"

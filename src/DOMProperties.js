@@ -1,40 +1,64 @@
+// @flow
+
 import hyphenate from 'dom-helpers/util/hyphenate';
 
-export const RESERVED_PROPS = {
-  children: true,
-  dangerouslySetInnerHTML: true,
-  innerHTML: true
-};
+import {
+  isNamespaced,
+  ReservedPropNames,
+  MapPropertyToAttribute,
+  MapNamespaceToUri,
+} from './DOMConfig';
 
-export const isEventRegex = /^on([A-Z][a-zA-Z]+)$/;
+/**
+ * A string attribute that accepts react boolean values. The rendered
+ * value should be "true" or "false",
+ * e.g `<input value="true" />` not `<input value />`
+ */
+const isStringBoolean = (key: string) =>
+  key === 'contenteditable' ||
+  key === 'draggable' ||
+  key === 'spellcheck' ||
+  key === 'value';
 
-const HAS_STRING_BOOLEAN_VALUE = 0x40;
+export function setValueOnElement(
+  domElement: Element,
+  propName: string,
+  value: any,
+  isSvg: boolean,
+) {
+  if (ReservedPropNames.has(propName)) return;
 
-const properties = {
-  contentEditable: HAS_STRING_BOOLEAN_VALUE,
-  draggable: HAS_STRING_BOOLEAN_VALUE,
-  spellCheck: HAS_STRING_BOOLEAN_VALUE,
-  value: HAS_STRING_BOOLEAN_VALUE
-};
-
-export function setValueOnElement(domElement, propName, value) {
-  if (RESERVED_PROPS.hasOwnProperty(propName)) return;
-
-  if (propName in domElement) {
-    domElement[propName] = value == null ? '' : value;
+  if (
+    !isSvg &&
+    propName !== 'list' &&
+    propName !== 'type' &&
+    propName in domElement
+  ) {
+    (domElement: any)[propName] = value == null ? '' : value;
     return;
   }
 
-  const attributeName = hyphenate(propName);
+  let ns = isSvg && propName.match(isNamespaced);
+  if (ns) {
+    ns = MapNamespaceToUri[ns[1]];
+    propName = propName.replace(isNamespaced, '').toLowerCase();
+  }
+
+  // manually map inconsistent attribute names from consistent prop names,
+  // otherwise assume it's predictably camelCase to dash-case
+  const attributeName = MapPropertyToAttribute[propName] || hyphenate(propName);
+
   if (value == null) {
-    domElement.removeAttribute(attributeName);
+    if (ns) domElement.removeAttributeNS(ns, attributeName);
+    else domElement.removeAttribute(attributeName);
   } else {
-    if (properties[propName] === HAS_STRING_BOOLEAN_VALUE) {
+    if ((value === true || value === false) && isStringBoolean(attributeName)) {
       value = String(value);
     } else if (value === true) {
       value = '';
     }
 
-    domElement.setAttribute(attributeName, value);
+    if (ns) domElement.setAttributeNS(ns, attributeName, value);
+    else domElement.setAttribute(attributeName, value);
   }
 }
