@@ -54,16 +54,17 @@ class Form extends React.Component {
   state = {};
   handleNameChange = e => {
     this.setState({ name: e.target.value });
+    DomLite.findDOMNode(this);
   };
   render() {
     return (
       <form>
         <Select />
-        {/* <input
+        <input
           name="name"
           onInput={this.handleNameChange}
           value={this.state.name}
-        /> */}
+        />
         <button type="button" onClick={() => this.forceUpdate()}>
           Click
         </button>
@@ -71,4 +72,5 @@ class Form extends React.Component {
     );
   }
 }
+
 DomLite.render(<Form />, document.getElementById('app'));

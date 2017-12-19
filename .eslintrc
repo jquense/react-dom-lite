@@ -15,6 +15,11 @@
       "files": ["**/__tests__/**/*.js"],
       "env": {
         "jest": true
+      },
+      "rules": {
+        "react/prop-types": "off",
+        "global-require": "off",
+        "no-console": "off"
       }
     }
   ]

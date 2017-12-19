@@ -1,23 +1,26 @@
 // @flow
 
-import type { OpaqueRoot } from 'react-reconciler';
-import { DOMLiteRenderer } from './index';
+import type { OpaqueRoot, Reconciler } from 'react-reconciler';
+
+type DOMLiteRenderer = Reconciler<DOMContainer, Element, Text>;
 
 class Root {
-  renderer: typeof DOMLiteRenderer;
+  renderer: DOMLiteRenderer;
   internalRoot: OpaqueRoot;
 
-  constructor(domRoot: DOMContainer, renderer: typeof DOMLiteRenderer) {
+  constructor(domContainer: DOMContainer, renderer: DOMLiteRenderer) {
     this.renderer = renderer;
-    this.internalRoot = domRoot;
+    this.internalRoot = renderer.createContainer(domContainer, false, false);
   }
 
-  render(children: React$Element<any>) {
-    this.renderer.updateContainer(children, this.internalRoot, null);
+  render(children: ReactNodeList, cb: ?Function) {
+    this.renderer.updateContainer(children, this.internalRoot, null, cb);
+
+    return this.renderer.getPublicRootInstance(this.internalRoot);
   }
 
-  unmount() {
-    this.renderer.updateContainer(null, this.internalRoot, null);
+  unmount(cb: ?Function) {
+    this.renderer.updateContainer(null, this.internalRoot, null, cb);
   }
 }
 

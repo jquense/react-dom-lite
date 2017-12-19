@@ -19,7 +19,8 @@
     "*.{js,json,css,md}": ["prettier --write", "git add"]
   },
   "jest": {
-    "roots": ["<rootDir>/src"]
+    "roots": ["<rootDir>/src"],
+    "setupFiles": ["./test/setup.js"]
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
