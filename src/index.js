@@ -31,15 +31,11 @@ const hostConfig: HostConfig<
   HostContext, // CX: Host context
   Array<[string, any]> // PL: prepare update result
 > = {
-  getRootHostContext(instance: DOMContainer): HostContext {
+  getRootHostContext(): HostContext {
     return '';
   },
 
-  getChildHostContext(
-    parentHostContext: HostContext,
-    type: string,
-    instance: Element
-  ): HostContext {
+  getChildHostContext(): HostContext {
     return '';
   },
 
@@ -135,12 +131,7 @@ const hostConfig: HostConfig<
       DOMComponent.updateProps(instance, preparedUpdateQueue);
     },
 
-    commitMount(
-      instance: Element,
-      type: string,
-      newProps: Props,
-      internalInstanceHandle: any
-    ) {
+    commitMount() {
       // noop
     },
 
