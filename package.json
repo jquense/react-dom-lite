@@ -9,11 +9,13 @@
     "examples": "webpack-dev-server",
     "prettier": "prettier --write src/**/*.js",
     "precommit": "lint-staged",
+    "pretest": "npm run flow && eslint src examples test",
     "test": "jest",
     "tdd": "jest --watch",
     "flow": "flow"
   },
   "lint-staged": {
+    "*.{js}": ["eslint"],
     "*.{js,json,css,md}": ["prettier --write", "git add"]
   },
   "jest": {
