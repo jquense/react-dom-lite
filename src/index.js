@@ -184,7 +184,7 @@ const hostConfig: HostConfig<
 const DOMLiteRenderer = Reconciler(hostConfig);
 
 DOMLiteRenderer.injectIntoDevTools({
-  bundleType: __DEV__ ? 1 : 0,
+  bundleType: 1,
   version: '0.1.0',
   rendererPackageName: 'react-dom-lite',
   findFiberByHostInstance: getInternalHandleFromInstance
