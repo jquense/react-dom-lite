@@ -8,6 +8,8 @@ import { DOMLiteReconciler } from './Reconciler';
 
 const ContainerMap: WeakMap<DOMContainer, Root> = new WeakMap();
 
+const unstable_batchedUpdates = DOMLiteReconciler.batchedUpdates;
+
 function render(
   elements: React$Element<any>,
   domContainer: DOMContainer,
@@ -80,4 +82,10 @@ function createPortal(
   };
 }
 
-export { render, unmountComponentAtNode, findDOMNode, createPortal };
+export {
+  render,
+  unmountComponentAtNode,
+  findDOMNode,
+  createPortal,
+  unstable_batchedUpdates
+};

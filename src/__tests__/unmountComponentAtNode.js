@@ -6,8 +6,11 @@
  */
 
 import React from 'react';
-import { DOMLiteReconciler } from '../Reconciler';
-import { render, unmountComponentAtNode } from '../';
+import {
+  render,
+  unmountComponentAtNode,
+  unstable_batchedUpdates as batchedUpdates
+} from 'react-dom-lite';
 
 describe('unmountComponentAtNode', () => {
   it('throws when given a non-node', () => {
@@ -106,7 +109,7 @@ describe('unmountComponentAtNode', () => {
 
     render(<div>1</div>, container1);
 
-    DOMLiteReconciler.batchedUpdates(() => {
+    batchedUpdates(() => {
       // Update. Does not flush yet.
       render(<div>2</div>, container1);
       expect(container1.textContent).toEqual('1');

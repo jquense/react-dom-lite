@@ -7,8 +7,8 @@
 
 import React from 'react';
 
-import { render, unmountComponentAtNode, findDOMNode } from '../';
-import * as TestUtils from '../test-utils';
+import { render, unmountComponentAtNode, findDOMNode } from 'react-dom-lite';
+import * as TestUtils from 'react-dom-lite/test-utils';
 
 describe('findDOMNode', () => {
   it('findDOMNode should return null if passed null', () => {

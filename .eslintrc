@@ -6,6 +6,9 @@
     "__DEV__": false,
     "performance": false
   },
+  "env": {
+    "browser": true
+  },
   "rules": {
     "flowtype/generic-spacing": "off",
     "flowtype/use-flow-type": "error"
@@ -20,6 +23,12 @@
         "react/prop-types": "off",
         "global-require": "off",
         "no-console": "off"
+      },
+      "settings": {
+        "import/core-modules": [
+          "react-dom-lite",
+          "react-dom-lite/test-utils"
+        ]
       }
     }
   ]

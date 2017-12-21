@@ -1,6 +1,7 @@
 {
   "presets": [
-    "jason",
+    ["jason", {"debug": false}],
     "flow"
-  ]
+  ],
+  "sourceMaps": "inline"
 }
