@@ -5,8 +5,10 @@ import type { OpaqueHandle } from 'react-reconciler';
 const HostComponent = 5;
 const HostText = 6;
 
+type PublicInstance = PublicInstance;
+
 const ComponentInstanceMap: WeakMap<
-  Element | Text,
+  PublicInstance,
   OpaqueHandle
 > = new WeakMap();
 
@@ -18,7 +20,7 @@ export function cacheHandleByInstance(
 }
 
 export function getInternalHandleFromInstance(
-  instance: Element | Text
+  instance: PublicInstance
 ): ?OpaqueHandle {
   if (ComponentInstanceMap.has(instance)) {
     return ComponentInstanceMap.get(instance);
@@ -36,4 +38,17 @@ export function getInternalHandleFromInstance(
     return inst;
   }
   return null;
+}
+
+export function collectAncestors(inst: PublicInstance): Array<PublicInstance> {
+  let handle = ComponentInstanceMap.get(inst);
+  const path: Array<PublicInstance> = [];
+  while (handle) {
+    path.push(inst);
+    do {
+      handle = handle.return;
+    } while (handle && handle.tag !== HostComponent);
+    inst = handle && handle.stateNode;
+  }
+  return path;
 }

@@ -5,7 +5,6 @@ import invariant from 'invariant';
 import { setValueOnElement, isEventRegex } from './DOMProperties';
 import * as Events from './events';
 
-
 export function setInitialProps(domElement: Element, nextProps: Props) {
   Object.entries(nextProps).forEach(([propKey, propValue]) => {
     let match;
@@ -34,8 +33,7 @@ export function setInitialProps(domElement: Element, nextProps: Props) {
 
       // Add DOM event listeners
     } else if ((match = propKey.match(isEventRegex))) {
-      let [, eventName] = match;
-      Events.listenTo(domElement, eventName, (propValue: any), null);
+      Events.listenTo(domElement, match[1], (propValue: any), null);
     } else if (propValue != null) {
       setValueOnElement(domElement, propKey, propValue);
     }
@@ -136,13 +134,7 @@ export function updateProps(
 
       // Add DOM event listeners
     } else if ((match = propKey.match(isEventRegex))) {
-<<<<<<< HEAD
-      listenTo(domElement, match[1], propValue, lastProps[propKey]);
-=======
-      let [lastHandler, nextHandler] = propValue;
-
-      Events.listenTo(domElement, match[1], nextHandler, lastHandler);
->>>>>>> WIP
+      Events.listenTo(domElement, match[1], propValue, lastProps[propKey]);
     } else if (propValue != null) {
       setValueOnElement(domElement, propKey, propValue);
     }

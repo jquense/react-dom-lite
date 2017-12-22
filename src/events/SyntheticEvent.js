@@ -14,11 +14,13 @@ export default class SyntheticEvent {
   isPersistent: Function;
   isDefaultPrevented: Function;
   isPropagationStopped: Function;
+  eventPhase: number;
+  currentTarget: Element | Text;
   nativeEvent: Event;
 
-  constructor(type: string, event: Event) {
+  constructor(event: Event) {
     this.nativeEvent = event;
-    this.type = type;
+    this.type = event.type;
     this.isPropagationStopped = returnsFalse;
     this.isDefaultPrevented = event.defaultPrevented
       ? returnsTrue
@@ -42,6 +44,7 @@ export default class SyntheticEvent {
   };
   preventDefault = () => {
     this.defaultPrevented = true;
+    this.isDefaultPrevented = returnsTrue;
     this.nativeEvent.preventDefault();
   };
 }

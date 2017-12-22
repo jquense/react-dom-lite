@@ -112,4 +112,18 @@ describe('events', () => {
     expect(btnSpy).toBeCalled();
     expect(spy).toBeCalled();
   });
+
+  describe('Alternate types', () => {
+    it('should use original name in event', () => {
+      const spy = jest.fn(e => {
+        expect(e.type).toEqual('change');
+        expect(e.nativeEvent.type).toEqual('input');
+      });
+      const node = render(<input onChange={spy} />, container);
+
+      node.dispatchEvent(new Event('input', {}));
+
+      expect(spy).toBeCalled();
+    });
+  });
 });
