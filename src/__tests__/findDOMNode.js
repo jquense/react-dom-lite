@@ -63,7 +63,7 @@ describe('findDOMNode', () => {
     expect(function() {
       findDOMNode({ foo: 'bar' });
     }).toThrowError(
-      'Element appears to be neither ReactComponent nor DOMNode. Keys: foo'
+      'Element appears to be neither ReactComponent nor DOMNode. Keys: foo',
     );
   });
 
@@ -79,7 +79,7 @@ describe('findDOMNode', () => {
     unmountComponentAtNode(container);
 
     expect(() => findDOMNode(inst)).toThrowError(
-      'Unable to find node on an unmounted component.'
+      'Unable to find node on an unmounted component.',
     );
   });
 

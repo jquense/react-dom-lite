@@ -21,7 +21,7 @@ const hostConfig: HostConfig<
   DOMContainer, // C: Container instance
   any, // Child container instance
   HostContext, // CX: Host context
-  Array<[string, any]> // PL: prepare update result
+  Array<[string, any]>, // PL: prepare update result
 > = {
   getRootHostContext(): HostContext {
     return '';
@@ -51,7 +51,7 @@ const hostConfig: HostConfig<
   finalizeInitialChildren(
     domElement: Element,
     type: string,
-    props: Props
+    props: Props,
   ): boolean {
     DOMComponent.setInitialProps(domElement, props);
     return false;
@@ -69,7 +69,7 @@ const hostConfig: HostConfig<
     domElement: Element,
     type: string,
     oldProps: Props,
-    newProps: Props
+    newProps: Props,
   ): null | Array<[string, any]> {
     return DOMComponent.diffProps(domElement, oldProps, newProps) || null;
   },
@@ -108,9 +108,11 @@ const hostConfig: HostConfig<
   mutation: {
     commitUpdate(
       instance: Element,
-      preparedUpdateQueue: Array<[string, any]>
+      preparedUpdateQueue: Array<[string, any]>,
+      type,
+      oldProps,
     ): void {
-      DOMComponent.updateProps(instance, preparedUpdateQueue);
+      DOMComponent.updateProps(instance, preparedUpdateQueue, oldProps);
     },
 
     commitMount() {
@@ -131,14 +133,14 @@ const hostConfig: HostConfig<
 
     appendChildToContainer(
       parentInstance: DOMContainer,
-      child: Element | Text
+      child: Element | Text,
     ): void {
       parentInstance.appendChild(child);
     },
     insertBefore(
       parentInstance: Element,
       child: Element | Text,
-      beforeChild: Element | Text
+      beforeChild: Element | Text,
     ): void {
       parentInstance.insertBefore(child, beforeChild);
     },
@@ -146,7 +148,7 @@ const hostConfig: HostConfig<
     insertInContainerBefore(
       container: DOMContainer,
       child: Element | Text,
-      beforeChild: Element | Text
+      beforeChild: Element | Text,
     ): void {
       container.insertBefore(child, beforeChild);
     },
@@ -156,11 +158,11 @@ const hostConfig: HostConfig<
     },
     removeChildFromContainer(
       parentInstance: DOMContainer,
-      child: Element | Text
+      child: Element | Text,
     ): void {
       parentInstance.removeChild(child);
-    }
-  }
+    },
+  },
 };
 
 const DOMLiteReconciler = Reconciler(hostConfig);
@@ -169,7 +171,7 @@ DOMLiteReconciler.injectIntoDevTools({
   bundleType: __DEV__ ? 1 : 0,
   version: '0.1.0',
   rendererPackageName: 'react-dom-lite',
-  findFiberByHostInstance: DOMLiteReconciler.findHostInstance
+  findFiberByHostInstance: DOMLiteReconciler.findHostInstance,
 });
 
 export { DOMLiteReconciler };

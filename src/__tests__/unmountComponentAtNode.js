@@ -9,7 +9,7 @@ import React from 'react';
 import {
   render,
   unmountComponentAtNode,
-  unstable_batchedUpdates as batchedUpdates
+  unstable_batchedUpdates as batchedUpdates,
 } from 'react-dom-lite';
 
 describe('unmountComponentAtNode', () => {
@@ -18,7 +18,7 @@ describe('unmountComponentAtNode', () => {
     expect(function() {
       unmountComponentAtNode(nodeArray);
     }).toThrowError(
-      'unmountComponentAtNode(...): Target container is not a DOM element.'
+      'unmountComponentAtNode(...): Target container is not a DOM element.',
     );
   });
 
