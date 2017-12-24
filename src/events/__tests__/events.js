@@ -14,15 +14,15 @@ describe('events', () => {
   });
 
   it('should listen to events', () => {
-    const focusSpy = jest.fn();
+    const captureSpy = jest.fn(e => {
+      expect(bubbleSpy).not.toBeCalled();
+      expect(e.eventPhase).toEqual(e.CAPTURING_PHASE);
+    });
     const bubbleSpy = jest.fn(e =>
       expect(e.eventPhase).toEqual(e.BUBBLING_PHASE)
     );
-    const captureSpy = jest.fn(e =>
-      expect(e.eventPhase).toEqual(e.CAPTURING_PHASE)
-    );
     const node = render(
-      <div onFocus={focusSpy} onClick={bubbleSpy} onClickCapture={captureSpy}>
+      <div onClick={bubbleSpy} onClickCapture={captureSpy}>
         <button />
       </div>,
       container
@@ -31,9 +31,8 @@ describe('events', () => {
     node.firstChild.click();
     node.firstChild.focus();
 
-    expect(bubbleSpy).toBeCalled();
     expect(captureSpy).toBeCalled();
-    expect(focusSpy).toBeCalled();
+    expect(bubbleSpy).toBeCalled();
   });
 
   test('onFocus and onBlur should bubble', () => {

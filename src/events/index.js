@@ -16,7 +16,7 @@ const ElementHandlers: WeakMap<
   Map<string, Function>
 > = new WeakMap();
 
-export function traverseTwoPhase(
+function traverseTwoPhase(
   inst: Element,
   callback: Function,
   event: SyntheticEvent
