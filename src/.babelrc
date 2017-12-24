@@ -1,0 +1,18 @@
+{
+  "presets": [
+    [
+      "env", {
+        "modules": false,
+        "targets": {
+          "browsers": ["last 2 versions", "safari >= 7"]
+        }
+      }
+    ],
+    [ "flow" ],
+  ],
+  "plugins": [
+    "transform-react-jsx",
+    "transform-class-properties",
+    "external-helpers"
+  ]
+}
