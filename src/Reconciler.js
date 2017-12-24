@@ -4,6 +4,10 @@ import Reconciler, { type HostConfig } from 'react-reconciler';
 import getOwnerDocument from 'dom-helpers/ownerDocument';
 
 import * as DOMComponent from './DOMComponent';
+import {
+  cacheHandleByInstance,
+  getInternalHandleFromInstance,
+} from './DOMComponentTree';
 
 function createElement(type, props, rootContainerElement): Element {
   const ownerDocument = getOwnerDocument(rootContainerElement);
@@ -32,20 +36,30 @@ const hostConfig: HostConfig<
   },
 
   appendInitialChild(parentInstance: Element, child: Element | Text): void {
-    if (parentInstance.appendChild) {
-      parentInstance.appendChild(child);
-    } else {
-      // $FlowFixMe
-      parentInstance.document = child;
-    }
+    parentInstance.appendChild(child);
   },
 
-  createInstance(type: string, props: Props): Element {
-    return createElement(type, props);
+  createInstance(
+    type: string,
+    props: Props,
+    rootContainerInstance: DOMContainer,
+    hostContext,
+    internalInstanceHandle,
+  ): Element {
+    const instance = createElement(type, props);
+    cacheHandleByInstance(instance, internalInstanceHandle);
+    return instance;
   },
 
-  createTextInstance(text: string, rootContainerInstance: DOMContainer): Text {
-    return getOwnerDocument(rootContainerInstance).createTextNode(text);
+  createTextInstance(
+    text: string,
+    rootContainerInstance: DOMContainer,
+    hostContext,
+    internalInstanceHandle,
+  ): Text {
+    const inst = getOwnerDocument(rootContainerInstance).createTextNode(text);
+    cacheHandleByInstance(inst, internalInstanceHandle);
+    return inst;
   },
 
   finalizeInitialChildren(
@@ -109,10 +123,8 @@ const hostConfig: HostConfig<
     commitUpdate(
       instance: Element,
       preparedUpdateQueue: Array<[string, any]>,
-      type,
-      oldProps,
     ): void {
-      DOMComponent.updateProps(instance, preparedUpdateQueue, oldProps);
+      DOMComponent.updateProps(instance, preparedUpdateQueue);
     },
 
     commitMount() {
@@ -171,7 +183,7 @@ DOMLiteReconciler.injectIntoDevTools({
   bundleType: __DEV__ ? 1 : 0,
   version: '0.1.0',
   rendererPackageName: 'react-dom-lite',
-  findFiberByHostInstance: DOMLiteReconciler.findHostInstance,
+  findFiberByHostInstance: getInternalHandleFromInstance,
 });
 
 export { DOMLiteReconciler };
