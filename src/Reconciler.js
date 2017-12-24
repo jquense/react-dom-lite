@@ -123,10 +123,11 @@ const hostConfig: HostConfig<
     commitUpdate(
       instance: Element,
       preparedUpdateQueue: Array<[string, any]>,
+      type,
+      oldProps,
     ): void {
-      DOMComponent.updateProps(instance, preparedUpdateQueue);
+      DOMComponent.updateProps(instance, preparedUpdateQueue, oldProps);
     },
-
     commitMount() {
       // noop
     },
