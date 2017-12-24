@@ -19,7 +19,12 @@
     "*.{js,json,css,md}": ["prettier --write", "git add"]
   },
   "jest": {
-    "roots": ["<rootDir>/src"]
+    "roots": ["<rootDir>/src"],
+    "setupFiles": ["./test/setup.js"],
+    "moduleNameMapper": {
+      "react-dom-lite/test-utils": "<rootDir>/src/test-utils.js",
+      "react-dom-lite": "<rootDir>/src/index.js"
+    }
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

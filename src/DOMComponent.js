@@ -4,14 +4,11 @@ import css from 'dom-helpers/style';
 import invariant from 'invariant';
 import { setValueOnElement, isEventRegex } from './DOMProperties';
 
-const isRenderableChild = child =>
-  typeof child === 'string' || typeof child === 'number';
-
 function listenTo(
   domElement: Element,
   eventName: string,
   value: any,
-  lastValue: any
+  lastValue: any,
 ) {
   let useCapture = false;
 
@@ -44,19 +41,19 @@ export function setInitialProps(domElement: Element, nextProps: Props) {
     ) {
       invariant(
         typeof propValue === 'object' && typeof propValue.__html === 'string',
-        'The dangerouslySetInnerHTML prop value must be an object with an single __html field'
+        'The dangerouslySetInnerHTML prop value must be an object with an single __html field',
       );
       domElement.innerHTML = propValue.__html;
       // Handle when `children` is a renderable (text, number, etc)
     } else if (propKey === 'children') {
-      // doesn't cover an IE8 issue with textareas
-      if (typeof propValue === 'number') propValue = `${propValue}`;
-      if (typeof propValue === 'string') domElement.textContent = propValue;
+      // doesn't cover an IE issue with textareas
+      if (typeof propValue === 'string' || typeof propValue === 'number') {
+        domElement.textContent = `${propValue}`;
+      }
 
       // Add DOM event listeners
     } else if ((match = propKey.match(isEventRegex))) {
-      let [, eventName] = match;
-      listenTo(domElement, eventName, propValue, null);
+      listenTo(domElement, match[1], propValue, null);
     } else if (propValue != null) {
       setValueOnElement(domElement, propKey, propValue);
     }
@@ -79,8 +76,8 @@ function diffStyle(lastStyle: any, nextStyle: any) {
 
 export function diffProps(
   domElement: Element,
-  lastProps: Object,
-  nextProps: Object
+  lastProps: Props,
+  nextProps: Props,
 ): ?Array<[string, any]> {
   let updatePayload: ?Array<[string, any]> = null;
 
@@ -90,10 +87,10 @@ export function diffProps(
   };
 
   for (let propKey of Object.keys(lastProps)) {
-    if (lastProps[propKey] == null || nextProps.hasOwnProperty(propKey)) {
-      continue;
-    } else if (propKey.match(isEventRegex)) {
-      updatePayload = updatePayload || [];
+    // in case the event doesn't exist in the nextProps make sure the event
+    // in the update queue so the handler is removed in `commitUpdate`
+    if (!nextProps.hasOwnProperty(propKey) && propKey.match(isEventRegex)) {
+      add(propKey, null);
     }
   }
 
@@ -109,23 +106,17 @@ export function diffProps(
       continue;
     } else if (propKey === 'dangerouslySetInnerHTML') {
       invariant(
-        typeof nextProp === 'object',
-        'The dangerouslySetInnerHTML prop value must be an object with an single __html field'
+        typeof nextProp === 'object' && typeof lastProp === 'object',
+        'The dangerouslySetInnerHTML prop value must be an object with an single __html field',
       );
       const nextHtml = nextProp ? nextProp.__html : undefined;
       const lastHtml = lastProp ? lastProp.__html : undefined;
       if (nextHtml != null && lastHtml !== nextHtml) {
         add(propKey, nextHtml);
       }
-    } else if (
-      propKey === 'children' &&
-      lastProp !== nextProp &&
-      isRenderableChild(nextProp)
-    ) {
-      add(propKey, nextProp);
-    } else if (propKey.match(isEventRegex) && lastProp !== nextProp) {
-      // we need the last event handler so we can remove it in the commit phase
-      add(propKey, [lastProp, nextProp]);
+    } else if (propKey === 'children') {
+      if (typeof nextProp === 'string' || typeof nextProp === 'number')
+        add(propKey, nextProp);
     } else {
       // For any other property we always add it to the queue and then we
       // filter it out using the whitelist during the commit.
@@ -143,7 +134,8 @@ export function diffProps(
 
 export function updateProps(
   domElement: Element,
-  updateQueue: Array<[string, any]>
+  updateQueue: Array<[string, any]>,
+  lastProps: Props,
 ) {
   let match;
 
@@ -156,15 +148,13 @@ export function updateProps(
 
       // Handle when `children` is a renderable (text, number, etc)
     } else if (propKey === 'children') {
-      // doesn't cover an IE8 issue with textareas
-      if (typeof propValue === 'number') propValue = `${propValue}`;
-      if (typeof propValue === 'string') domElement.textContent = propValue;
+      if (typeof propValue === 'string' || typeof propValue === 'number') {
+        domElement.textContent = `${propValue}`;
+      }
 
       // Add DOM event listeners
     } else if ((match = propKey.match(isEventRegex))) {
-      let [lastHandler, nextHandler] = propValue;
-
-      listenTo(domElement, match[1], nextHandler, lastHandler);
+      listenTo(domElement, match[1], propValue, lastProps[propKey]);
     } else if (propValue != null) {
       setValueOnElement(domElement, propKey, propValue);
     }

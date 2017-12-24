@@ -246,7 +246,7 @@ declare module 'react-reconciler' {
     getInspectorDataForViewTag?: (tag: number) => Object
   |};
 
-  declare type Reconciler<C, I, TI> = {
+  declare export type Reconciler<C, I, TI> = {
     createContainer(
       containerInfo: C,
       isAsync: boolean,

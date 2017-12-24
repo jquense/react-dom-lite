@@ -2,8 +2,8 @@
 
 import type { OpaqueHandle } from 'react-reconciler';
 
-export const HostComponent = 5;
-export const HostText = 6;
+const HostComponent = 5;
+const HostText = 6;
 
 const ComponentInstanceMap: WeakMap<
   Element | Text,
@@ -31,5 +31,9 @@ export function getInternalHandleFromInstance(
     element = element.parentElement;
   }
 
-  return ComponentInstanceMap.get(element) || null;
+  const inst = ComponentInstanceMap.get(element);
+  if (inst && (inst.tag === HostComponent || inst.tag === HostText)) {
+    return inst;
+  }
+  return null;
 }
