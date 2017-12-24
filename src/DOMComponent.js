@@ -87,8 +87,8 @@ export function diffProps(
   };
 
   for (let propKey of Object.keys(lastProps)) {
-    // in case the event doesn't exist in the nextProps make it's
-    // in the update queue so the handler is removed
+    // in case the event doesn't exist in the nextProps make sure the event
+    // in the update queue so the handler is removed in `commitUpdate`
     if (!nextProps.hasOwnProperty(propKey) && propKey.match(isEventRegex)) {
       add(propKey, null);
     }
