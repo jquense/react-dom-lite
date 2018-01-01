@@ -1,32 +1,23 @@
-// const packageJSON = require('../../package.json');
-// module.exports = Object.assign(
-//   {},
-//   // packageJSON.jest,
-//   {
-//     transform:{
-//       '.*': require.resolve('./preprocess.react-test-suite.js')
-//     },
-//     setupFiles: ['./test/setup.js'],
-//     moduleNameMapper: {
-//       'react-dom': '<rootDir>/lib/index.js',
-//     },
-//     testRegex:
-//       'test/react-test-suite/packages/react-dom/src/__tests__/.*\\.js$',
-//     rootDir: process.cwd(),
-//     roots: ['<rootDir>/test/react-test-suite/packages'],
-//   },
-// );
+const moduleNameMapper = {
+  '^react-dom$': '<rootDir>/lib/index.js',
+  '^react$': '<rootDir>/node_modules/react/',
+  '^react-reconciler$': '<rootDir>/node_modules/react-reconciler',
+  '^react-dom/test-utils$': '<rootDir>/node_modules/react-dom/test-utils',
+};
 
-const reactJestSourceConfig = require('../../test/react-test-suite/scripts/jest/config.source.js');
-
-module.exports = Object.assign({}, reactJestSourceConfig, {
-  modulePathIgnorePatterns: [
-    '<rootDir>/test/react-test-suite/scripts/rollup/shims/',
-    '<rootDir>/test/react-test-suite/scripts/bench/',
-  ],
-  moduleNameMapper: {
-    'react-dom': '<rootDir>/lib/index.js',
+module.exports = Object.assign(
+  {},
+  {
+    rootDir: process.cwd(),
+    roots: ['<rootDir>'],
+    moduleNameMapper,
+    testRegex:
+      'test/react-test-suite/packages/react-dom/src/__tests__/.*\\.js$',
+    testPathIgnorePatterns: [
+      '/node_modules/',
+      '-test.internal.js$',
+      '[Ss]erver',
+    ],
+    transformIgnorePatterns: ['/node_modules/', '<rootDir>/lib/'],
   },
-  testRegex: '/react-dom/src/__tests__/[^/]*(\\.js)$',
-  roots: ['<rootDir>/test/react-test-suite/packages'],
-});
+);

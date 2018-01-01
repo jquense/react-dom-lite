@@ -115,8 +115,10 @@ const hostConfig: HostConfig<
   },
 
   useSyncScheduling: true,
-  scheduleDeferredCallback: window.requestIdleCallback,
-  cancelDeferredCallback: window.cancelIdleCallback,
+  scheduleDeferredCallback:
+    typeof window === 'undefined' ? () => {} : window.requestIdleCallback,
+  cancelDeferredCallback:
+    typeof window === 'undefined' ? () => {} : window.cancelIdleCallback,
   shouldDeprioritizeSubtree: (type: string, props: Props) => !!props.hidden,
 
   mutation: {
