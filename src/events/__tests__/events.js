@@ -19,13 +19,13 @@ describe('events', () => {
       expect(e.eventPhase).toEqual(e.CAPTURING_PHASE);
     });
     const bubbleSpy = jest.fn(e =>
-      expect(e.eventPhase).toEqual(e.BUBBLING_PHASE)
+      expect(e.eventPhase).toEqual(e.BUBBLING_PHASE),
     );
     const node = render(
       <div onClick={bubbleSpy} onClickCapture={captureSpy}>
         <button />
       </div>,
-      container
+      container,
     );
 
     node.firstChild.click();
@@ -42,7 +42,7 @@ describe('events', () => {
       <div onFocus={focusSpy} onBlur={blurSpy}>
         <input />
       </div>,
-      container
+      container,
     );
 
     node.firstChild.focus();
@@ -63,7 +63,7 @@ describe('events', () => {
       <div onClick={spy}>
         <button onClick={btnSpy} />
       </div>,
-      container
+      container,
     );
 
     node.firstChild.click();
@@ -76,7 +76,7 @@ describe('events', () => {
     let event;
     const node = render(
       <button onClick={jest.fn(e => (event = e))} />,
-      container
+      container,
     );
 
     node.click();
@@ -103,7 +103,7 @@ describe('events', () => {
       <div onClick={spy}>
         <button onClick={btnSpy} />
       </div>,
-      container
+      container,
     );
 
     node.firstChild.click();
@@ -123,6 +123,22 @@ describe('events', () => {
       node.dispatchEvent(new Event('input', {}));
 
       expect(spy).toBeCalled();
+    });
+
+    it('should call both handlers', () => {
+      const changeSpy = jest.fn();
+      const inputSpy = jest.fn();
+
+      const node = render(
+        <input type="text" onChange={changeSpy} onInput={inputSpy} />,
+
+        container,
+      );
+
+      node.dispatchEvent(new Event('input', {}));
+
+      expect(changeSpy).toBeCalled();
+      expect(inputSpy).toBeCalled();
     });
   });
 });

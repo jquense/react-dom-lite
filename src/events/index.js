@@ -2,24 +2,20 @@
 import { collectAncestors } from '../DOMComponentTree';
 import SyntheticEvent from './SyntheticEvent';
 
-const Phases = {
+export const Phases = {
   CAPTURING: 1,
-  BUBBLING: 3
-};
-
-const AlternateNames = {
-  change: 'input'
+  BUBBLING: 3,
 };
 
 const ElementHandlers: WeakMap<
   Element | Text,
-  Map<string, Function>
+  Map<string, Function>,
 > = new WeakMap();
 
 function traverseTwoPhase(
   inst: Element,
   callback: Function,
-  event: SyntheticEvent
+  event: SyntheticEvent,
 ) {
   const path = collectAncestors(inst);
 
@@ -34,7 +30,7 @@ export function listenTo(
   domElement: Element,
   eventName: string,
   value: ?Function,
-  lastValue: ?Function
+  lastValue: ?Function,
 ) {
   let handlers = ElementHandlers.get(domElement);
   if (!handlers) ElementHandlers.set(domElement, (handlers = new Map()));
@@ -47,42 +43,46 @@ export function listenTo(
     phase = Phases.CAPTURING;
   }
 
-  let originalName = eventName;
-  eventName = AlternateNames[eventName] || originalName;
-  const key = `${eventName}-${phase}`;
+  const originalName = eventName;
+  const key = `${originalName}-${phase}`;
+  eventName = originalName === 'change' ? 'input' : originalName;
 
   if (!value) {
     domElement.removeEventListener(eventName, handlerProxy, true);
     handlers.delete(key);
   } else {
     if (!lastValue) domElement.addEventListener(eventName, handlerProxy, true);
-
-    value.__originalType = originalName;
     handlers.set(key, value);
   }
 }
 
 const HandledEvents = new WeakSet();
-function handlerProxy(event: Event) {
-  if (HandledEvents.has(event)) return;
-  HandledEvents.add(event);
+export function handlerProxy(nativeEvent: Event) {
+  if (HandledEvents.has(nativeEvent)) return;
+  HandledEvents.add(nativeEvent);
 
-  // TODO maybe normalize `event.key`
-  traverseTwoPhase((event.target: any), dispatch, new SyntheticEvent(event));
+  const target = (nativeEvent: any).target;
+  dispatchSyntheticEvent(target, new SyntheticEvent(nativeEvent));
+
+  // if the event is an input event we need to also check for onChange events
+  if (nativeEvent.type === 'input') {
+    dispatchSyntheticEvent(target, new SyntheticEvent(nativeEvent, 'change'));
+  }
 }
 
-function dispatch(element: Element, phase, event): ?boolean {
-  const handlers = ElementHandlers.get(element);
-  if (!handlers) return;
+export function dispatchSyntheticEvent(target: Element, event: SyntheticEvent) {
+  // TODO: probably more traversal options for different events,
+  // e.g. mouseenter/leave for portal compat
+  traverseTwoPhase(target, executeHandlers, event);
+}
 
-  const handler = handlers.get(`${event.type}-${phase}`);
+function executeHandlers(element: Element, phase, event): ?boolean {
+  const handlers = ElementHandlers.get(element);
+  const handler = handlers && handlers.get(`${event.type}-${phase}`);
   if (!handler) return;
 
   event.currentTarget = element;
   event.eventPhase = phase;
-  event.type = handler.__originalType || event.type;
   handler.call(element, event);
-
-  const stop = event.isPropagationStopped();
-  return stop === true;
+  return event.isPropagationStopped();
 }

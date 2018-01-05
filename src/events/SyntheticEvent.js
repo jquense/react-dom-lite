@@ -8,43 +8,29 @@ const returnsTrue = () => true;
  * Shim object for compatibility with react components expecting the
  * Synthetic even system to exist.
  */
-export default class SyntheticEvent {
-  type: string;
-  defaultPrevented: boolean;
-  isPersistent: Function;
-  isDefaultPrevented: Function;
-  isPropagationStopped: Function;
-  eventPhase: number;
-  currentTarget: Element | Text;
-  nativeEvent: Event;
+export default function SyntheticEvent(event: Event, type?: string) {
+  this.nativeEvent = event;
+  this.type = type || event.type;
 
-  constructor(event: Event) {
-    this.nativeEvent = event;
-    this.type = event.type;
-    this.isPropagationStopped = returnsFalse;
-    this.isDefaultPrevented = event.defaultPrevented
-      ? returnsTrue
-      : returnsFalse;
-
-    for (let key in event) {
-      if (!(key in this))
-        // $FlowFixMe
-        this[key] = event[key];
+  for (let key in event)
+    if (!(key in this)) {
+      this[key] = (event: any)[key]; // TODO maybe normalize `event.key`
     }
-  }
-  persist() {
-    this.isPersistent = returnsTrue;
-  }
-  isPersistent() {
-    return false;
-  }
-  stopPropagation = () => {
-    this.nativeEvent.stopPropagation();
-    this.isPropagationStopped = returnsTrue;
-  };
-  preventDefault = () => {
-    this.defaultPrevented = true;
-    this.isDefaultPrevented = returnsTrue;
-    this.nativeEvent.preventDefault();
-  };
+
+  this.isPersistent = returnsFalse;
+  this.isPropagationStopped = returnsFalse;
+  this.isDefaultPrevented = event.defaultPrevented ? returnsTrue : returnsFalse;
 }
+
+SyntheticEvent.prototype.persist = function() {
+  this.isPersistent = returnsTrue;
+};
+SyntheticEvent.prototype.stopPropagation = function() {
+  this.nativeEvent.stopPropagation();
+  this.isPropagationStopped = returnsTrue;
+};
+SyntheticEvent.prototype.preventDefault = function() {
+  this.defaultPrevented = true;
+  this.isDefaultPrevented = returnsTrue;
+  this.nativeEvent.preventDefault();
+};
