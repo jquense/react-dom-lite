@@ -4,7 +4,7 @@
   "main": "lib/index.js",
   "license": "MIT",
   "scripts": {
-    "build": "rollup -c scripts/build/rollup.config.js",
+    "build": "rollup -c scripts/tools/rollup.config.js",
     "watch": "npm run babel -- --watch",
     "examples": "webpack-dev-server",
     "prettier": "prettier --write src/**/*.js",
@@ -47,7 +47,6 @@
     "eslint-plugin-react": "^7.5.1",
     "flow-bin": "^0.61.0",
     "husky": "^0.14.3",
-    "invariant": "^2.2.2",
     "jest": "^21.2.1",
     "lint-staged": "^6.0.0",
     "prettier": "^1.9.1",
@@ -65,6 +64,7 @@
   "dependencies": {
     "dom-helpers": "^3.2.1",
     "global": "^4.3.2",
+    "invariant": "^2.2.2",
     "react": "^16.2.0",
     "react-devtools": "^3.0.0",
     "react-reconciler": "^0.7.0"
