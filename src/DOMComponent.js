@@ -134,7 +134,12 @@ export function updateProps(
 
       // Add DOM event listeners
     } else if ((match = propKey.match(isEventRegex))) {
-      Events.listenTo(domElement, match[1], propValue, lastProps[propKey]);
+      Events.listenTo(
+        domElement,
+        match[1],
+        propValue,
+        (lastProps[propKey]: any),
+      );
     } else if (propValue != null) {
       setValueOnElement(domElement, propKey, propValue);
     }
