@@ -36,6 +36,7 @@ class Counter extends React.Component {
 class Select extends React.Component {
   state = { value: 3 };
   handleChange = e => {
+    throw new Error();
     this.setState({ value: e.target.value });
   };
   render() {
