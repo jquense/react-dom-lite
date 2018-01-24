@@ -4,7 +4,7 @@
   "main": "lib/index.js",
   "license": "MIT",
   "scripts": {
-    "build": "rollup -c scripts/tools/rollup.config.js",
+    "build": "BABEL_ENV=production rollup -c scripts/tools/rollup.config.js",
     "watch": "npm run babel -- --watch",
     "examples": "webpack-dev-server",
     "prettier": "prettier --write src/**/*.js",

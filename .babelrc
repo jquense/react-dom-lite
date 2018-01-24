@@ -1,0 +1,38 @@
+{
+  "presets": [
+    "flow"
+  ],
+  "env": {
+    "development": {
+      "presets": [
+        [
+          "env", {
+            "targets": {
+              "browsers": ["last 2 versions", "safari >= 7"]
+            }
+          }
+        ]
+      ],
+      "plugins": [
+        "transform-class-properties",
+        "transform-react-jsx",
+      ]
+    },
+    "production": {
+      "presets": [
+        [
+          "env", {
+            "modules": false,
+            "targets": {
+              "browsers": ["last 2 versions", "safari >= 7"]
+            }
+          }
+        ]
+      ],
+      "plugins": [
+        "transform-class-properties",
+        "external-helpers"
+      ]
+    }
+  }
+}
