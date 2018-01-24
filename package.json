@@ -10,8 +10,8 @@
     "prettier": "prettier --write src/**/*.js",
     "precommit": "lint-staged",
     "pretest": "npm run flow && eslint src test",
-    "test": "jest",
-    "tdd": "jest --watch",
+    "test": "BABEL_ENV=development jest",
+    "tdd": "BABEL_ENV=development jest --watch",
     "flow": "flow"
   },
   "lint-staged": {
@@ -22,7 +22,6 @@
     "roots": ["<rootDir>/src"],
     "setupFiles": ["./test/setup.js"],
     "setupTestFrameworkScriptFile": "./test/setupTests.js",
-
     "moduleNameMapper": {
       "react-dom-lite/test-utils": "<rootDir>/src/test-utils.js",
       "react-dom-lite": "<rootDir>/src/index.js"
