@@ -1,4 +1,5 @@
-const { rules, plugins } = require('webpack-atoms')
+const CompressionPlugin = require('compression-webpack-plugin');
+const { rules, plugins } = require('webpack-atoms');
 
 module.exports = {
   devtool: 'module-source-map',
@@ -12,7 +13,7 @@ module.exports = {
   },
   resolve: {
     alias: {
-      'react-dom-lite$': `${__dirname}/src`,
+      'react-dom-lite$': `${__dirname}/lib/react-dom-lite.js`,
     },
   },
   plugins: [
@@ -20,5 +21,6 @@ module.exports = {
       template: `${__dirname}/examples/index.html`,
     }),
     plugins.extractText(),
+    new CompressionPlugin(),
   ],
-}
+};
