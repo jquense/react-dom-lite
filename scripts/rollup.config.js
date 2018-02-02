@@ -21,6 +21,7 @@ module.exports = {
         languageIn: 'ECMASCRIPT5_STRICT',
         languageOut: 'ECMASCRIPT5_STRICT',
         env: 'CUSTOM',
+        rewritePolyfills: false,
         applyInputSourceMaps: false,
         processCommonJsModules: false,
       }),

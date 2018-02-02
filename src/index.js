@@ -13,7 +13,7 @@ const unstable_batchedUpdates = DOMLiteReconciler.batchedUpdates;
 function render(
   elements: React$Element<any>,
   domContainer: DOMContainer,
-  callback: ?Function
+  callback: ?Function,
 ) {
   let exitingRoot = ContainerMap.get(domContainer);
   if (exitingRoot) return exitingRoot.render(elements, callback);
@@ -22,14 +22,14 @@ function render(
   ContainerMap.set(domContainer, root);
   // Initial render only is unbatched
   return DOMLiteReconciler.unbatchedUpdates(() =>
-    root.render(elements, callback)
+    root.render(elements, callback),
   );
 }
 
 function unmountComponentAtNode(domContainer: DOMContainer): boolean {
   invariant(
     domContainer && [1, 8, 9, 11].indexOf(domContainer.nodeType) !== -1,
-    'unmountComponentAtNode(...): Target container is not a DOM element.'
+    'unmountComponentAtNode(...): Target container is not a DOM element.',
   );
 
   const root = ContainerMap.get(domContainer);
@@ -46,7 +46,7 @@ function unmountComponentAtNode(domContainer: DOMContainer): boolean {
 }
 
 function findDOMNode(
-  componentOrElement: Element | ?React$Component<any, any>
+  componentOrElement: Element | ?React$Component<any, any>,
 ): null | Element | Text {
   if (componentOrElement == null) return null;
 
@@ -60,7 +60,7 @@ function findDOMNode(
   invariant(
     false,
     'Element appears to be neither ReactComponent nor DOMNode. Keys: %s',
-    Object.keys(componentOrElement)
+    Object.keys(componentOrElement),
   );
 }
 
@@ -68,7 +68,7 @@ function findDOMNode(
 function createPortal(
   children: ReactNodeList,
   container: DOMContainer,
-  key?: string
+  key?: string,
 ): ReactPortal {
   return {
     $$typeof:
@@ -78,7 +78,7 @@ function createPortal(
     key: key == null ? null : String(key),
     children,
     containerInfo: container,
-    implementation: null
+    implementation: null,
   };
 }
 
@@ -87,5 +87,14 @@ export {
   unmountComponentAtNode,
   findDOMNode,
   createPortal,
-  unstable_batchedUpdates
+  unstable_batchedUpdates,
+};
+
+// This is match react-dom which only has default exports
+export default {
+  render,
+  unmountComponentAtNode,
+  findDOMNode,
+  createPortal,
+  unstable_batchedUpdates,
 };
