@@ -11,7 +11,14 @@
   },
   "rules": {
     "flowtype/generic-spacing": "off",
-    "flowtype/use-flow-type": "error"
+    "flowtype/use-flow-type": "error",
+    "no-restricted-syntax": [
+      "error",
+      "AwaitExpression",
+      "ArrowFunctionExpression[async=true]",
+      "FunctionDeclaration[async=true]",
+      "FunctionExpression[async=true]"
+    ]
   },
   "overrides": [
     {
