@@ -72,7 +72,6 @@
     "global": "^4.3.2",
     "invariant": "^2.2.2",
     "react": "^16.2.0",
-    "react-devtools": "^3.0.0",
     "react-reconciler": "^0.7.0"
   }
 }
