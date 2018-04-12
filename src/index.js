@@ -10,20 +10,37 @@ const ContainerMap: WeakMap<DOMContainer, Root> = new WeakMap();
 
 const unstable_batchedUpdates = DOMLiteReconciler.batchedUpdates;
 
-function render(
+function renderSubtreeIntoContainer(
   elements: React$Element<any>,
   domContainer: DOMContainer,
+  hydrate: boolean,
   callback: ?Function,
 ) {
   let exitingRoot = ContainerMap.get(domContainer);
   if (exitingRoot) return exitingRoot.render(elements, callback);
 
-  let root = new Root(domContainer, DOMLiteReconciler);
+  let root = new Root(domContainer, DOMLiteReconciler, hydrate);
   ContainerMap.set(domContainer, root);
   // Initial render only is unbatched
   return DOMLiteReconciler.unbatchedUpdates(() =>
     root.render(elements, callback),
   );
+}
+
+function hydrate(
+  elements: React$Element<any>,
+  domContainer: DOMContainer,
+  callback: ?Function,
+) {
+  return renderSubtreeIntoContainer(elements, domContainer, true, callback);
+}
+
+function render(
+  elements: React$Element<any>,
+  domContainer: DOMContainer,
+  callback: ?Function,
+) {
+  return renderSubtreeIntoContainer(elements, domContainer, false, callback);
 }
 
 function unmountComponentAtNode(domContainer: DOMContainer): boolean {
@@ -84,6 +101,7 @@ function createPortal(
 
 export {
   render,
+  hydrate,
   unmountComponentAtNode,
   findDOMNode,
   createPortal,
@@ -93,6 +111,7 @@ export {
 // This is match react-dom which only has default exports
 export default {
   render,
+  hydrate,
   unmountComponentAtNode,
   findDOMNode,
   createPortal,

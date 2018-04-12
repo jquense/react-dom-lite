@@ -27,6 +27,7 @@ module.exports = {
       }),
   ].filter(Boolean),
   external: [
+    'warning',
     'dom-helpers/ownerDocument',
     'dom-helpers/style',
     'dom-helpers/util/hyphenate',
