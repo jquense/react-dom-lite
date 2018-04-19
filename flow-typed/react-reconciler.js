@@ -4,7 +4,7 @@ type Fiber = any;
 type FiberRoot = any;
 
 type Deadline = {
-  timeRemaining: () => number
+  timeRemaining: () => number,
 };
 
 export type ReactNode =
@@ -32,8 +32,8 @@ type ReactCall<V> = {
     props: any,
     // This should be a more specific CallHandler
     handler: (props: any, returns: Array<V>) => ReactNodeList,
-    children?: ReactNodeList
-  }
+    children?: ReactNodeList,
+  },
 };
 
 type ReactReturn<V> = {
@@ -42,8 +42,8 @@ type ReactReturn<V> = {
   key: null,
   ref: null,
   props: {
-    value: V
-  }
+    value: V,
+  },
 };
 
 type ReactPortal = {
@@ -52,7 +52,7 @@ type ReactPortal = {
   containerInfo: any,
   children: ReactNodeList,
   // TODO: figure out the API for cross-renderer implementation.
-  implementation: any
+  implementation: any,
 };
 
 declare module 'react-reconciler' {
@@ -70,14 +70,15 @@ declare module 'react-reconciler' {
       props: P,
       rootContainerInstance: C,
       hostContext: CX,
-      internalInstanceHandle: OpaqueHandle
+      internalInstanceHandle: OpaqueHandle,
     ): I,
     appendInitialChild(parentInstance: I, child: I | TI): void,
     finalizeInitialChildren(
       parentInstance: I,
       type: T,
       props: P,
-      rootContainerInstance: C
+      rootContainerInstance: C,
+      hostContext: CX,
     ): boolean,
 
     prepareUpdate(
@@ -86,7 +87,7 @@ declare module 'react-reconciler' {
       oldProps: P,
       newProps: P,
       rootContainerInstance: C,
-      hostContext: CX
+      hostContext: CX,
     ): null | PL,
 
     shouldSetTextContent(type: T, props: P): boolean,
@@ -96,26 +97,24 @@ declare module 'react-reconciler' {
       text: string,
       rootContainerInstance: C,
       hostContext: CX,
-      internalInstanceHandle: OpaqueHandle
+      internalInstanceHandle: OpaqueHandle,
     ): TI,
 
     scheduleDeferredCallback(
       callback: (deadline: Deadline) => void,
-      options?: { timeout: number }
+      options?: { timeout: number },
     ): number,
     cancelDeferredCallback(callbackID: number): void,
 
-    prepareForCommit(): void,
-    resetAfterCommit(): void,
+    prepareForCommit(containerInfo: C): void,
+    resetAfterCommit(containerInfo: C): void,
 
     now(): number,
-
-    useSyncScheduling?: boolean,
 
     +hydration?: HydrationHostConfig<T, P, I, TI, HI, C, CX, PL>,
 
     +mutation?: MutableUpdatesHostConfig<T, P, I, TI, C, PL>,
-    +persistence?: PersistentUpdatesHostConfig<T, P, I, TI, C, CC, PL>
+    +persistence?: PersistentUpdatesHostConfig<T, P, I, TI, C, CC, PL>,
   };
 
   declare type MutableUpdatesHostConfig<T, P, I, TI, C, PL> = {
@@ -125,13 +124,13 @@ declare module 'react-reconciler' {
       type: T,
       oldProps: P,
       newProps: P,
-      internalInstanceHandle: OpaqueHandle
+      internalInstanceHandle: OpaqueHandle,
     ): void,
     commitMount(
       instance: I,
       type: T,
       newProps: P,
-      internalInstanceHandle: OpaqueHandle
+      internalInstanceHandle: OpaqueHandle,
     ): void,
     commitTextUpdate(textInstance: TI, oldText: string, newText: string): void,
     resetTextContent(instance: I): void,
@@ -141,10 +140,10 @@ declare module 'react-reconciler' {
     insertInContainerBefore(
       container: C,
       child: I | TI,
-      beforeChild: I | TI
+      beforeChild: I | TI,
     ): void,
     removeChild(parentInstance: I, child: I | TI): void,
-    removeChildFromContainer(container: C, child: I | TI): void
+    removeChildFromContainer(container: C, child: I | TI): void,
   };
 
   declare type PersistentUpdatesHostConfig<T, P, I, TI, C, CC, PL> = {
@@ -156,7 +155,7 @@ declare module 'react-reconciler' {
       newProps: P,
       internalInstanceHandle: OpaqueHandle,
       keepChildren: boolean,
-      recyclableInstance: I
+      recyclableInstance: I,
     ): I,
 
     createContainerChildSet(container: C): CC,
@@ -164,7 +163,7 @@ declare module 'react-reconciler' {
     appendChildToContainerChildSet(childSet: CC, child: I | TI): void,
     finalizeContainerChildren(container: C, newChildren: CC): void,
 
-    replaceContainerChildren(container: C, newChildren: CC): void
+    replaceContainerChildren(container: C, newChildren: CC): void,
   };
 
   declare type HydrationHostConfig<T, P, I, TI, HI, C, CX, PL> = {
@@ -179,54 +178,54 @@ declare module 'react-reconciler' {
       props: P,
       rootContainerInstance: C,
       hostContext: CX,
-      internalInstanceHandle: OpaqueHandle
+      internalInstanceHandle: OpaqueHandle,
     ): null | PL,
     hydrateTextInstance(
       textInstance: TI,
       text: string,
-      internalInstanceHandle: OpaqueHandle
+      internalInstanceHandle: OpaqueHandle,
     ): boolean,
     didNotMatchHydratedContainerTextInstance(
       parentContainer: C,
       textInstance: TI,
-      text: string
+      text: string,
     ): void,
     didNotMatchHydratedTextInstance(
       parentType: T,
       parentProps: P,
       parentInstance: I,
       textInstance: TI,
-      text: string
+      text: string,
     ): void,
     didNotHydrateContainerInstance(parentContainer: C, instance: I | TI): void,
     didNotHydrateInstance(
       parentType: T,
       parentProps: P,
       parentInstance: I,
-      instance: I | TI
+      instance: I | TI,
     ): void,
     didNotFindHydratableContainerInstance(
       parentContainer: C,
       type: T,
-      props: P
+      props: P,
     ): void,
     didNotFindHydratableContainerTextInstance(
       parentContainer: C,
-      text: string
+      text: string,
     ): void,
     didNotFindHydratableInstance(
       parentType: T,
       parentProps: P,
       parentInstance: I,
       type: T,
-      props: P
+      props: P,
     ): void,
     didNotFindHydratableTextInstance(
       parentType: T,
       parentProps: P,
       parentInstance: I,
-      text: string
-    ): void
+      text: string,
+    ): void,
   };
 
   // 0 is PROD, 1 is DEV.
@@ -243,27 +242,27 @@ declare module 'react-reconciler' {
     // Used by RN in-app inspector.
     // This API is unfortunately RN-specific.
     // TODO: Change it to accept Fiber instead and type it properly.
-    getInspectorDataForViewTag?: (tag: number) => Object
+    getInspectorDataForViewTag?: (tag: number) => Object,
   |};
 
   declare export type Reconciler<C, I, TI> = {
     createContainer(
       containerInfo: C,
       isAsync: boolean,
-      hydrate: boolean
+      hydrate: boolean,
     ): OpaqueRoot,
     updateContainer(
       element: ReactNodeList,
       container: OpaqueRoot,
       parentComponent: ?React$Component<any, any>,
-      callback: ?Function
+      callback: ?Function,
     ): ExpirationTime,
     updateContainerAtExpirationTime(
       element: ReactNodeList,
       container: OpaqueRoot,
       parentComponent: ?React$Component<any, any>,
       expirationTime: ExpirationTime,
-      callback: ?Function
+      callback: ?Function,
     ): ExpirationTime,
     flushRoot(root: OpaqueRoot, expirationTime: ExpirationTime): void,
     requestWork(root: OpaqueRoot, expirationTime: ExpirationTime): void,
@@ -276,14 +275,14 @@ declare module 'react-reconciler' {
 
     // Used to extract the return value from the initial render. Legacy API.
     getPublicRootInstance(
-      container: OpaqueRoot
+      container: OpaqueRoot,
     ): React$Component<any, any> | TI | I | null,
 
     // Use for findDOMNode/findHostNode. Legacy API.
     findHostInstance(component: Fiber): I | TI | null,
 
     // Used internally for filtering out portals. Legacy API.
-    findHostInstanceWithNoPortals(component: Fiber): I | TI | null
+    findHostInstanceWithNoPortals(component: Fiber): I | TI | null,
   };
 
   declare export default function createReconciler<
@@ -296,8 +295,8 @@ declare module 'react-reconciler' {
     C,
     CC,
     CX,
-    PL
+    PL,
   >(
-    config: HostConfig<T, P, I, TI, HI, PI, C, CC, CX, PL>
+    config: HostConfig<T, P, I, TI, HI, PI, C, CC, CX, PL>,
   ): Reconciler<C, I, TI>;
 }

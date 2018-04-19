@@ -27,6 +27,7 @@ describe('findDOMNode', () => {
     }
 
     const myNode = TestUtils.renderIntoDetachedNode(<MyNode />);
+
     const myDiv = findDOMNode(myNode);
     const mySameDiv = findDOMNode(myDiv);
     expect(myDiv.tagName).toBe('DIV');
@@ -62,9 +63,7 @@ describe('findDOMNode', () => {
   it('findDOMNode should reject random objects', () => {
     expect(function() {
       findDOMNode({ foo: 'bar' });
-    }).toThrowError(
-      'Element appears to be neither ReactComponent nor DOMNode. Keys: foo',
-    );
+    }).toThrowError(/Argument appears to not be a ReactComponent/);
   });
 
   it('findDOMNode should reject unmounted objects with render func', () => {

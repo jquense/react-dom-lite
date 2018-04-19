@@ -1,7 +1,6 @@
 // @flow
 
 import invariant from 'invariant';
-import type { OpaqueHandle } from 'react-reconciler';
 
 import Root from './Root';
 import { DOMLiteReconciler } from './Reconciler';
@@ -53,15 +52,8 @@ function findDOMNode(
   if (componentOrElement.nodeType === 1 || componentOrElement === 3) {
     return (componentOrElement: any);
   }
-  // $FlowFixMe
-  const handler: OpaqueHandle = componentOrElement._reactInternalFiber;
-  if (handler) return DOMLiteReconciler.findHostInstance(handler);
 
-  invariant(
-    false,
-    'Element appears to be neither ReactComponent nor DOMNode. Keys: %s',
-    Object.keys(componentOrElement),
-  );
+  return DOMLiteReconciler.findHostInstance(componentOrElement);
 }
 
 // FIXME: Upstream needs to provide a better API for this.

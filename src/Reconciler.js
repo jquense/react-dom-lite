@@ -9,8 +9,6 @@ import {
   getInternalHandleFromInstance,
 } from './DOMComponentTree';
 
-let isSvg = null;
-
 function getSvgContext(isSvg, type) {
   return type === 'svg' || (isSvg && type === 'foreignObject' ? false : isSvg);
 }
@@ -85,14 +83,9 @@ const hostConfig: HostConfig<
     type: string,
     props: Props,
     rootContainerInstance,
+    hostContext,
   ): boolean {
-    if (isSvg == null) isSvg = getRootSvgContext(rootContainerInstance);
-
-    DOMComponent.setInitialProps(
-      domElement,
-      props,
-      (isSvg = getSvgContext(isSvg, type)),
-    );
+    DOMComponent.setInitialProps(domElement, props, hostContext.isSvg);
     return false;
   },
 
