@@ -9,9 +9,22 @@ import {
   getInternalHandleFromInstance,
 } from './DOMComponentTree';
 
-function createElement(type, props, rootContainerElement): Element {
+let isSvg = null;
+
+function getSvgContext(isSvg, type) {
+  return type === 'svg' || (isSvg && type === 'foreignObject' ? false : isSvg);
+}
+
+function getRootSvgContext(rootContainer: Element | Document) {
+  const type = rootContainer.tagName ? (rootContainer: any).tagName : '#other';
+  return getSvgContext(!!(rootContainer: any).ownerSVGElement, type);
+}
+
+function createElement(type, props, rootContainerElement, isSvg): Element {
   const ownerDocument = getOwnerDocument(rootContainerElement);
-  let domElement = ownerDocument.createElement(type);
+  let domElement = isSvg
+    ? ownerDocument.createElementNS('http://www.w3.org/2000/svg', type)
+    : ownerDocument.createElement(type);
   return domElement;
 }
 
@@ -27,12 +40,12 @@ const hostConfig: HostConfig<
   HostContext, // CX: Host context
   Array<[string, any]>, // PL: prepare update result
 > = {
-  getRootHostContext(): HostContext {
-    return '';
+  getRootHostContext(rootContainer): HostContext {
+    return { isSvg: getRootSvgContext(rootContainer) };
   },
 
-  getChildHostContext(): HostContext {
-    return '';
+  getChildHostContext({ isSvg }: HostContext, type: string): HostContext {
+    return { isSvg: getSvgContext(isSvg, type) };
   },
 
   appendInitialChild(parentInstance: Element, child: Element | Text): void {
@@ -43,10 +56,15 @@ const hostConfig: HostConfig<
     type: string,
     props: Props,
     rootContainerInstance: DOMContainer,
-    hostContext,
+    { isSvg: parentIsSvg },
     internalInstanceHandle,
   ): Element {
-    const instance = createElement(type, props);
+    const instance = createElement(
+      type,
+      props,
+      rootContainerInstance,
+      parentIsSvg || type === 'svg', // in or entering an svg
+    );
     cacheHandleByInstance(instance, internalInstanceHandle);
     return instance;
   },
@@ -66,8 +84,15 @@ const hostConfig: HostConfig<
     domElement: Element,
     type: string,
     props: Props,
+    rootContainerInstance,
   ): boolean {
-    DOMComponent.setInitialProps(domElement, props);
+    if (isSvg == null) isSvg = getRootSvgContext(rootContainerInstance);
+
+    DOMComponent.setInitialProps(
+      domElement,
+      props,
+      (isSvg = getSvgContext(isSvg, type)),
+    );
     return false;
   },
 
@@ -125,8 +150,10 @@ const hostConfig: HostConfig<
       preparedUpdateQueue: Array<[string, any]>,
       type,
       oldProps,
+      _,
+      { isSvg },
     ): void {
-      DOMComponent.updateProps(instance, preparedUpdateQueue, oldProps);
+      DOMComponent.updateProps(instance, preparedUpdateQueue, oldProps, isSvg);
     },
     commitMount() {
       // noop

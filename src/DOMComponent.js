@@ -2,10 +2,15 @@
 
 import css from 'dom-helpers/style';
 import invariant from 'invariant';
-import { setValueOnElement, isEventRegex } from './DOMProperties';
+import { setValueOnElement } from './DOMProperties';
+import { isEventRegex } from './DOMConfig';
 import * as Events from './events';
 
-export function setInitialProps(domElement: Element, nextProps: Props) {
+export function setInitialProps(
+  domElement: Element,
+  nextProps: Props,
+  isSvg: boolean,
+) {
   Object.entries(nextProps).forEach(([propKey, propValue]) => {
     let match;
 
@@ -35,7 +40,7 @@ export function setInitialProps(domElement: Element, nextProps: Props) {
     } else if ((match = propKey.match(isEventRegex))) {
       Events.listenTo(domElement, match[1], (propValue: any), null);
     } else if (propValue != null) {
-      setValueOnElement(domElement, propKey, propValue);
+      setValueOnElement(domElement, propKey, propValue, isSvg);
     }
   });
 }
@@ -76,11 +81,22 @@ export function diffProps(
 
   for (let entry of Object.entries(nextProps)) {
     const [propKey: string, nextProp: any] = entry;
-    const lastProp = lastProps[propKey];
 
+    if (propKey === 'value' || propKey === 'checked') {
+      // Value is always a string but React accepts most any type so we need
+      // to compare the prop value as a string
+      if (
+        (propKey === 'value' ? String(nextProp) : nextProp) !==
+        (domElement: any)[propKey]
+      )
+        add(propKey, nextProp);
+      continue;
+    }
+
+    const lastProp = lastProps[propKey];
     if (
-      nextProp === lastProp ||
       propKey === 'style' ||
+      nextProp === lastProp ||
       (nextProp == null && lastProp == null)
     ) {
       continue;
@@ -98,8 +114,6 @@ export function diffProps(
       if (typeof nextProp === 'string' || typeof nextProp === 'number')
         add(propKey, nextProp);
     } else {
-      // For any other property we always add it to the queue and then we
-      // filter it out using the whitelist during the commit.
       add(propKey, nextProp);
     }
   }
@@ -116,6 +130,7 @@ export function updateProps(
   domElement: Element,
   updateQueue: Array<[string, any]>,
   lastProps: Props,
+  isSvg: boolean,
 ) {
   let match;
 
@@ -123,6 +138,7 @@ export function updateProps(
     // inline styles!
     if (propKey === 'style') {
       css(domElement, propValue);
+      //
     } else if (propKey === 'dangerouslySetInnerHTML') {
       domElement.innerHTML = propValue.__html;
 
@@ -141,7 +157,7 @@ export function updateProps(
         (lastProps[propKey]: any),
       );
     } else if (propValue != null) {
-      setValueOnElement(domElement, propKey, propValue);
+      setValueOnElement(domElement, propKey, propValue, isSvg);
     }
   }
 }

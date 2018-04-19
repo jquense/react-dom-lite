@@ -20,6 +20,9 @@ module.exports = {
     plugins.html({
       template: `${__dirname}/examples/index.html`,
     }),
+    plugins.define({
+      __SVG__: false,
+    }),
     plugins.extractText(),
     new CompressionPlugin(),
   ],
