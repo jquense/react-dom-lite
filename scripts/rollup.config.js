@@ -12,7 +12,7 @@ module.exports = {
     format: 'cjs',
   },
   plugins: [
-    replace({ __DEV__: dev }),
+    replace({ __DEV__: dev, __SVG__: false }), // Needs attention! How do we decide when to turn it on?
     babel(),
     commonjs(),
     !dev &&
