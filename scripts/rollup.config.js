@@ -12,7 +12,7 @@ module.exports = {
     format: 'cjs',
   },
   plugins: [
-    replace({ __DEV__: dev, __SVG__: false }), // Needs attention! How do we decide when to turn it on?
+    replace({ __DEV__: dev, __SVG__: true }), // Needs attention! A way/config to selectively turn this on or off
     babel(),
     commonjs(),
     !dev &&
