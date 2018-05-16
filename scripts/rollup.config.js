@@ -12,7 +12,7 @@ module.exports = {
     format: 'cjs',
   },
   plugins: [
-    replace({ __DEV__: dev }),
+    replace({ __DEV__: dev, __SVG__: true }), // Needs attention! A way/config to selectively turn this on or off
     babel(),
     commonjs(),
     !dev &&
@@ -27,6 +27,7 @@ module.exports = {
       }),
   ].filter(Boolean),
   external: [
+    'warning',
     'dom-helpers/ownerDocument',
     'dom-helpers/style',
     'dom-helpers/util/hyphenate',

@@ -2,7 +2,9 @@
 
 import Reconciler, { type HostConfig } from 'react-reconciler';
 import getOwnerDocument from 'dom-helpers/ownerDocument';
-
+// Caution! One one of the following modules is supposed to be imported. Avoid side effects in them.
+import { SSRHydrationDev } from './SSRHydrationDev.js';
+import { SSRHydrationProd } from './SSRHydrationProd.js';
 import * as DOMComponent from './DOMComponent';
 import {
   cacheHandleByInstance,
@@ -26,6 +28,14 @@ function createElement(type, props, rootContainerElement, isSvg): Element {
     ? ownerDocument.createElementNS('http://www.w3.org/2000/svg', type)
     : ownerDocument.createElement(type);
   return domElement;
+}
+
+function getHydrationConfig() {
+  if (__DEV__) {
+    return SSRHydrationDev;
+  } else {
+    return SSRHydrationProd;
+  }
 }
 
 const hostConfig: HostConfig<
@@ -203,6 +213,8 @@ const hostConfig: HostConfig<
       parentInstance.removeChild(child);
     },
   },
+
+  hydration: getHydrationConfig(),
 };
 
 const DOMLiteReconciler = Reconciler(hostConfig);
