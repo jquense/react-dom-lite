@@ -78,6 +78,7 @@ declare module 'react-reconciler' {
       type: T,
       props: P,
       rootContainerInstance: C,
+      hostContext: CX,
     ): boolean,
 
     prepareUpdate(
@@ -247,7 +248,11 @@ declare module 'react-reconciler' {
   |};
 
   declare export type Reconciler<C, I, TI> = {
-    createContainer(containerInfo: C, hydrate: boolean): OpaqueRoot,
+    createContainer(
+      containerInfo: C,
+      isAsync: boolean,
+      hydrate: boolean,
+    ): OpaqueRoot,
     updateContainer(
       element: ReactNodeList,
       container: OpaqueRoot,
