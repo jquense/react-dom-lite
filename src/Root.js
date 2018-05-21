@@ -11,10 +11,15 @@ class Root {
   constructor(
     domContainer: DOMContainer,
     renderer: DOMLiteRenderer,
+    isAsync: boolean,
     hydrate: boolean,
   ) {
     this.renderer = renderer;
-    this.internalRoot = renderer.createContainer(domContainer, hydrate); // Attention: react-reconciler on npm doesn't support async yet. I don't think I should raise an issue upstream given that they have a release cycle planned. It would be nice though that npm know which git tag library authors should refer to.
+    this.internalRoot = renderer.createContainer(
+      domContainer,
+      isAsync,
+      hydrate,
+    ); // Attention: react-reconciler on npm doesn't support async yet. I don't think I should raise an issue upstream given that they have a release cycle planned. It would be nice though that npm know which git tag library authors should refer to.
   }
 
   render(children: ReactNodeList, cb: ?Function) {

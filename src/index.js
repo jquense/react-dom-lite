@@ -1,7 +1,6 @@
 // @flow
 
 import invariant from 'invariant';
-import type { OpaqueHandle } from 'react-reconciler';
 
 import Root from './Root';
 import { DOMLiteReconciler } from './Reconciler';
@@ -13,13 +12,14 @@ const unstable_batchedUpdates = DOMLiteReconciler.batchedUpdates;
 function renderSubtreeIntoContainer(
   elements: React$Element<any>,
   domContainer: DOMContainer,
+  isAsync: boolean,
   hydrate: boolean,
   callback: ?Function,
 ) {
   let exitingRoot = ContainerMap.get(domContainer);
   if (exitingRoot) return exitingRoot.render(elements, callback);
 
-  let root = new Root(domContainer, DOMLiteReconciler, hydrate);
+  let root = new Root(domContainer, DOMLiteReconciler, isAsync, hydrate);
   ContainerMap.set(domContainer, root);
   // Initial render only is unbatched
   return DOMLiteReconciler.unbatchedUpdates(() =>
@@ -32,7 +32,13 @@ function hydrate(
   domContainer: DOMContainer,
   callback: ?Function,
 ) {
-  return renderSubtreeIntoContainer(elements, domContainer, true, callback);
+  return renderSubtreeIntoContainer(
+    elements,
+    domContainer,
+    false,
+    true,
+    callback,
+  );
 }
 
 function render(
@@ -40,7 +46,13 @@ function render(
   domContainer: DOMContainer,
   callback: ?Function,
 ) {
-  return renderSubtreeIntoContainer(elements, domContainer, false, callback);
+  return renderSubtreeIntoContainer(
+    elements,
+    domContainer,
+    false,
+    false,
+    callback,
+  );
 }
 
 function unmountComponentAtNode(domContainer: DOMContainer): boolean {
@@ -70,15 +82,8 @@ function findDOMNode(
   if (componentOrElement.nodeType === 1 || componentOrElement === 3) {
     return (componentOrElement: any);
   }
-  // $FlowFixMe
-  const handler: OpaqueHandle = componentOrElement._reactInternalFiber;
-  if (handler) return DOMLiteReconciler.findHostInstance(handler);
 
-  invariant(
-    false,
-    'Element appears to be neither ReactComponent nor DOMNode. Keys: %s',
-    Object.keys(componentOrElement),
-  );
+  return DOMLiteReconciler.findHostInstance(componentOrElement);
 }
 
 // FIXME: Upstream needs to provide a better API for this.
