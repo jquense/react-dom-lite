@@ -2501,9 +2501,9 @@ escope@^3.6.0:
     esrecurse "^4.1.0"
     estraverse "^4.1.1"
 
-eslint-config-jason@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/eslint-config-jason/-/eslint-config-jason-4.0.0.tgz#4072867827b31f81c79e74eef7a1b05c05cc1631"
+eslint-config-jason@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/eslint-config-jason/-/eslint-config-jason-4.0.1.tgz#5da26b1425932aa717238e18c3400cfaa25a49e4"
 
 eslint-config-prettier@^2.9.0:
   version "2.9.0"
@@ -6208,15 +6208,6 @@ rc@^1.1.7:
     ini "~1.3.0"
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
-
-react-dom@^16.3.2:
-  version "16.3.2"
-  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-16.3.2.tgz#cb90f107e09536d683d84ed5d4888e9640e0e4df"
-  dependencies:
-    fbjs "^0.8.16"
-    loose-envify "^1.1.0"
-    object-assign "^4.1.1"
-    prop-types "^15.6.0"
 
 react-reconciler@0.10.0:
   version "0.10.0"
