@@ -16,7 +16,9 @@
     "prepublishOnly": "npm run test && npm run build",
     "test": "jest",
     "tdd": "jest --watch",
-    "flow": "flow"
+    "flow": "flow",
+    "test:react-dom":
+      "jest --config ./scripts/jest/config.react-dom-test-suite.js"
   },
   "files": ["lib"],
   "lint-staged": {
