@@ -1,7 +1,7 @@
 // @flow
 
 import css from 'dom-helpers/style';
-import invariant from 'invariant';
+import invariant from 'fbjs/lib/invariant';
 import { setValueOnElement } from './DOMProperties';
 import { isEventRegex } from './DOMConfig';
 import * as Events from './events';

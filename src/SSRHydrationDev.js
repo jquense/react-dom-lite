@@ -1,6 +1,6 @@
 // @flow
 import type { OpaqueHandle } from 'react-reconciler';
-import warning from 'warning';
+import warning from 'fbjs/lib/warning';
 import * as Events from './events';
 import { isEventRegex } from './DOMConfig';
 import { cacheHandleByInstance } from './DOMComponentTree';
@@ -235,154 +235,156 @@ function diffHydratedText(textNode: Text, text: string): boolean {
   return isDifferent;
 }
 
-export const SSRHydrationDev = {
-  canHydrateInstance(instance: Element, type: string): null | Element {
-    if (
-      instance.nodeType !== ELEMENT_NODE ||
-      type.toLowerCase() !== instance.nodeName.toLowerCase()
-    ) {
-      return null;
-    }
-    return instance;
-  },
-
-  canHydrateTextInstance(instance: Element, text: string): null | Text {
-    if (text === '' || instance.nodeType !== TEXT_NODE) {
-      // Empty strings are not parsed by HTML so there won't be a correct match here.
-      return null;
-    }
-    return ((instance: any): Text);
-  },
-
-  getNextHydratableSibling(instance: Element | Text): null | Element {
-    let node = instance.nextSibling;
-    // Skip non-hydratable nodes.
-    while (
-      node &&
-      node.nodeType !== ELEMENT_NODE &&
-      node.nodeType !== TEXT_NODE
-    ) {
-      node = node.nextSibling;
-    }
-    return (node: any);
-  },
-
-  getFirstHydratableChild(
-    parentInstance: DOMContainer | Element,
-  ): null | Element {
-    let next = parentInstance.firstChild;
-    // Skip non-hydratable nodes.
-    while (
-      next &&
-      next.nodeType !== ELEMENT_NODE &&
-      next.nodeType !== TEXT_NODE
-    ) {
-      next = next.nextSibling;
-    }
-    return ((next: any): Element);
-  },
-
-  hydrateInstance(
-    instance: Element,
-    type: string,
-    props: Props,
-    rootContainerInstance: DOMContainer,
-    hostContext: HostContext,
-    internalInstanceHandle: OpaqueHandle,
-  ): null | Array<[string, any]> {
-    cacheHandleByInstance(instance, internalInstanceHandle);
-    return diffHydratedProperties(
-      instance,
-      type,
-      props,
-      /* hostContext, */
-      /* rootContainerInstance,*/
-    );
-  },
-
-  hydrateTextInstance(
-    textInstance: Text,
-    text: string,
-    internalInstanceHandle: OpaqueHandle,
-  ): boolean {
-    cacheHandleByInstance(
-      ((textInstance: any): Element),
-      internalInstanceHandle,
-    );
-    return diffHydratedText(textInstance, text);
-  },
-
-  didNotMatchHydratedContainerTextInstance(
-    parentContainer: DOMContainer,
-    textInstance: Text,
-    text: string,
+export function canHydrateInstance(
+  instance: Element,
+  type: string,
+): null | Element {
+  if (
+    instance.nodeType !== ELEMENT_NODE ||
+    type.toLowerCase() !== instance.nodeName.toLowerCase()
   ) {
-    warnForUnmatchedText(textInstance, text);
-  },
+    return null;
+  }
+  return instance;
+}
+export function canHydrateTextInstance(
+  instance: Element,
+  text: string,
+): null | Text {
+  if (text === '' || instance.nodeType !== TEXT_NODE) {
+    // Empty strings are not parsed by HTML so there won't be a correct match here.
+    return null;
+  }
+  return ((instance: any): Text);
+}
 
-  didNotMatchHydratedTextInstance(
-    parentType: string,
-    parentProps: Props,
-    parentInstance: Element,
-    textInstance: Text,
-    text: string,
+export function getNextHydratableSibling(
+  instance: Element | Text,
+): null | Element {
+  let node = instance.nextSibling;
+  // Skip non-hydratable nodes.
+  while (
+    node &&
+    node.nodeType !== ELEMENT_NODE &&
+    node.nodeType !== TEXT_NODE
   ) {
-    warnForUnmatchedText(textInstance, text);
-  },
+    node = node.nextSibling;
+  }
+  return (node: any);
+}
 
-  didNotHydrateContainerInstance(
-    parentContainer: DOMContainer,
-    instance: Element | Text,
+export function getFirstHydratableChild(
+  parentInstance: DOMContainer | Element,
+): null | Element {
+  let next = parentInstance.firstChild;
+  // Skip non-hydratable nodes.
+  while (
+    next &&
+    next.nodeType !== ELEMENT_NODE &&
+    next.nodeType !== TEXT_NODE
   ) {
-    if (instance.nodeType === 1) {
-      warnForDeletedHydratableElement(parentContainer, (instance: any));
-    } else {
-      warnForDeletedHydratableText(parentContainer, (instance: any));
-    }
-  },
+    next = next.nextSibling;
+  }
+  return ((next: any): Element);
+}
 
-  didNotHydrateInstance(
-    parentType: string,
-    parentProps: Props,
-    parentInstance: Element,
-    instance: Element | Text,
-  ) {
-    if (instance.nodeType === 1) {
-      warnForDeletedHydratableElement(parentInstance, (instance: any));
-    } else {
-      warnForDeletedHydratableText(parentInstance, (instance: any));
-    }
-  },
+export function hydrateInstance(
+  instance: Element,
+  type: string,
+  props: Props,
+  rootContainerInstance: DOMContainer,
+  hostContext: HostContext,
+  internalInstanceHandle: OpaqueHandle,
+): null | Array<[string, any]> {
+  cacheHandleByInstance(instance, internalInstanceHandle);
+  return diffHydratedProperties(
+    instance,
+    type,
+    props,
+    /* hostContext, */
+    /* rootContainerInstance,*/
+  );
+}
 
-  didNotFindHydratableContainerInstance(
-    parentContainer: DOMContainer,
-    type: string,
-  ) {
-    warnForInsertedHydratedElement(parentContainer, type);
-  },
+export function hydrateTextInstance(
+  textInstance: Text,
+  text: string,
+  internalInstanceHandle: OpaqueHandle,
+): boolean {
+  cacheHandleByInstance(((textInstance: any): Element), internalInstanceHandle);
+  return diffHydratedText(textInstance, text);
+}
 
-  didNotFindHydratableContainerTextInstance(
-    parentContainer: DOMContainer,
-    text: string,
-  ) {
-    warnForInsertedHydratedText(parentContainer, text);
-  },
+export function didNotMatchHydratedContainerTextInstance(
+  parentContainer: DOMContainer,
+  textInstance: Text,
+  text: string,
+) {
+  warnForUnmatchedText(textInstance, text);
+}
 
-  didNotFindHydratableInstance(
-    parentType: string,
-    parentProps: Props,
-    parentInstance: Element,
-    type: string,
-  ) {
-    warnForInsertedHydratedElement(parentInstance, type);
-  },
+export function didNotMatchHydratedTextInstance(
+  parentType: string,
+  parentProps: Props,
+  parentInstance: Element,
+  textInstance: Text,
+  text: string,
+) {
+  warnForUnmatchedText(textInstance, text);
+}
 
-  didNotFindHydratableTextInstance(
-    parentType: string,
-    parentProps: Props,
-    parentInstance: Element,
-    text: string,
-  ) {
-    warnForInsertedHydratedText(parentInstance, text);
-  },
-};
+export function didNotHydrateContainerInstance(
+  parentContainer: DOMContainer,
+  instance: Element | Text,
+) {
+  if (instance.nodeType === 1) {
+    warnForDeletedHydratableElement(parentContainer, (instance: any));
+  } else {
+    warnForDeletedHydratableText(parentContainer, (instance: any));
+  }
+}
+
+export function didNotHydrateInstance(
+  parentType: string,
+  parentProps: Props,
+  parentInstance: Element,
+  instance: Element | Text,
+) {
+  if (instance.nodeType === 1) {
+    warnForDeletedHydratableElement(parentInstance, (instance: any));
+  } else {
+    warnForDeletedHydratableText(parentInstance, (instance: any));
+  }
+}
+
+export function didNotFindHydratableContainerInstance(
+  parentContainer: DOMContainer,
+  type: string,
+) {
+  warnForInsertedHydratedElement(parentContainer, type);
+}
+
+export function didNotFindHydratableContainerTextInstance(
+  parentContainer: DOMContainer,
+  text: string,
+) {
+  warnForInsertedHydratedText(parentContainer, text);
+}
+
+export function didNotFindHydratableInstance(
+  parentType: string,
+  parentProps: Props,
+  parentInstance: Element,
+  type: string,
+) {
+  warnForInsertedHydratedElement(parentInstance, type);
+}
+
+export function didNotFindHydratableTextInstance(
+  parentType: string,
+  parentProps: Props,
+  parentInstance: Element,
+  text: string,
+) {
+  warnForInsertedHydratedText(parentInstance, text);
+}

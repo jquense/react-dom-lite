@@ -1,6 +1,6 @@
 // @flow
 
-import invariant from 'invariant';
+import invariant from 'fbjs/lib/invariant';
 
 import Root from './Root';
 import { DOMLiteReconciler } from './Reconciler';

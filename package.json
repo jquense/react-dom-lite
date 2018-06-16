@@ -1,12 +1,13 @@
 {
   "name": "react-dom-lite",
   "version": "0.3.0",
-  "main": "lib/react-dom-lite.js",
+  "main": "lib/index.js",
   "license": "MIT",
   "scripts": {
-    "build:dev": "ROLLUP=1 rollup -c scripts/rollup.config.js",
+    "build:dev":
+      "ROLLUP=1 rollup -c scripts/rollup.config.js && cp npm/index.js lib/",
     "build:prod":
-      "ROLLUP=1 NODE_ENV=production rollup -c scripts/rollup.config.js",
+      "ROLLUP=1 NODE_ENV=production rollup -c scripts/rollup.config.js  && cp npm/index.js lib/",
     "build": "npm run build:dev && npm run build:prod",
     "watch": "npm run babel -- --watch",
     "examples": "NODE_ENV=production webpack --bail",
@@ -53,10 +54,13 @@
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-react": "^7.6.1",
     "flow-bin": "^0.61.0",
+    "global": "^4.3.2",
     "husky": "^0.14.3",
     "jest": "^22.1.4",
     "lint-staged": "^6.1.0",
     "prettier": "^1.10.2",
+    "react": "^16.3.0",
+    "react-reconciler": "0.12.0",
     "rollup": "^0.55.1",
     "rollup-plugin-babel": "4.0.0-beta.1",
     "rollup-plugin-bundle-size":
@@ -72,10 +76,9 @@
   },
   "dependencies": {
     "dom-helpers": "^3.3.1",
-    "global": "^4.3.2",
-    "invariant": "^2.2.4",
-    "react": "^16.3.0",
-    "react-reconciler": "0.10.0",
-    "warning": "^3.0.0"
+    "fbjs": "^0.8.17"
+  },
+  "peerDependencies": {
+    "react": "^16.0.0"
   }
 }

@@ -14,7 +14,11 @@ module.exports = {
     format: 'cjs',
   },
   plugins: [
-    replace({ __DEV__: dev, __SVG__: true }), // Needs attention! A way/config to selectively turn this on or off
+    replace({
+      __DEV__: dev,
+      __SVG__: true,
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+    }), // Needs attention! A way/config to selectively turn this on or off
     babel(),
     resolve({ browser: true }), // browser: true for warning module
     commonjs(),
@@ -30,4 +34,14 @@ module.exports = {
       }),
     logBundleSize(),
   ].filter(Boolean),
+  external: [
+    'dom-helpers/ownerDocument',
+    'dom-helpers/style',
+    'dom-helpers/util/hyphenate',
+    'react',
+    'fbjs/lib/warning',
+    'fbjs/lib/invariant',
+    'object-assign',
+    'prop-types',
+  ],
 };
