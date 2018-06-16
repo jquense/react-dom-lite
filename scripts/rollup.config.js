@@ -3,6 +3,7 @@ const commonjs = require('rollup-plugin-commonjs');
 const closure = require('rollup-plugin-closure-compiler-js');
 const replace = require('rollup-plugin-replace');
 const resolve = require('rollup-plugin-node-resolve');
+const logBundleSize = require('rollup-plugin-bundle-size');
 
 const dev = process.env.NODE_ENV !== 'production';
 
@@ -27,5 +28,6 @@ module.exports = {
         applyInputSourceMaps: false,
         processCommonJsModules: false,
       }),
+    logBundleSize(),
   ].filter(Boolean),
 };
