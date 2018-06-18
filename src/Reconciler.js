@@ -6,15 +6,7 @@ import * as HostConfigDev from './HostConfigDev.js';
 import * as HostConfigProd from './HostConfigProd.js';
 import { getInternalHandleFromInstance } from './DOMComponentTree';
 
-function getHostConfig() {
-  if (__DEV__) {
-    return HostConfigDev;
-  } else {
-    return HostConfigProd;
-  }
-}
-
-const DOMLiteReconciler = Reconciler(getHostConfig());
+const DOMLiteReconciler = Reconciler(__DEV__ ? HostConfigDev : HostConfigProd);
 
 DOMLiteReconciler.injectIntoDevTools({
   bundleType: __DEV__ ? 1 : 0,
