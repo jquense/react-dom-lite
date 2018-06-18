@@ -1,6 +1,38 @@
 const babel = require('rollup-plugin-babel');
 const commonjs = require('rollup-plugin-commonjs');
-const closure = require('rollup-plugin-closure-compiler-js');
+const tmp = require('tmp');
+const ClosureCompiler = require('google-closure-compiler').compiler;
+const { writeFileSync } = require('fs');
+// const closure = require('rollup-plugin-closure-compiler-js');
+function compile(flags) {
+  return new Promise((resolve, reject) => {
+    const closureCompiler = new ClosureCompiler(flags);
+    closureCompiler.run(function(exitCode, stdOut, stdErr) {
+      // if (!stdErr) {
+      //   resolve(stdOut);
+      // } else {
+      //   reject(new Error(stdErr));
+      // }
+      resolve(stdOut);
+    });
+  });
+}
+function closure(flags = {}) {
+  return {
+    name: 'closure-plugin',
+    async transformBundle(code) {
+      const inputFile = tmp.fileSync();
+      const tempPath = inputFile.name;
+      flags = Object.assign({}, flags, { js: tempPath });
+      writeFileSync(tempPath, code, 'utf8');
+      return compile(flags).then(compiledCode => {
+        inputFile.removeCallback();
+        return { code: compiledCode };
+      });
+    },
+  };
+}
+
 const replace = require('rollup-plugin-replace');
 const resolve = require('rollup-plugin-node-resolve');
 const logBundleSize = require('rollup-plugin-bundle-size');
@@ -24,13 +56,15 @@ module.exports = {
     commonjs(),
     !dev &&
       closure({
-        compilationLevel: 'SIMPLE',
+        // compilationLevel: 'SIMPLE',
+        compilationLevel: 'ADVANCED',
         languageIn: 'ECMASCRIPT5_STRICT',
         languageOut: 'ECMASCRIPT5_STRICT',
-        env: 'CUSTOM',
+        // env: 'CUSTOM',
         rewritePolyfills: false,
         applyInputSourceMaps: false,
         processCommonJsModules: false,
+        jscompOff: 'checkVars',
       }),
     logBundleSize(),
   ].filter(Boolean),
