@@ -55,7 +55,6 @@
     "eslint-plugin-react": "^7.6.1",
     "flow-bin": "^0.61.0",
     "global": "^4.3.2",
-    "google-closure-compiler": "^20180610.0.1",
     "husky": "^0.14.3",
     "jest": "^22.1.4",
     "lint-staged": "^6.1.0",
