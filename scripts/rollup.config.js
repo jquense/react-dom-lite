@@ -6,11 +6,14 @@ const replace = require('rollup-plugin-replace');
 const resolve = require('rollup-plugin-node-resolve');
 const logBundleSize = require('rollup-plugin-bundle-size');
 
+const { hackyGCC } = require('./rdl-hacky-babel-inliner');
+
 const dev = process.env.NODE_ENV !== 'production';
 
 module.exports = {
   input: 'src/index.js',
   output: {
+    sourcemap: true, // Needed to inline the host config functions later
     file: dev ? 'lib/react-dom-lite.js' : 'lib/react-dom-lite.min.js',
     format: 'cjs',
   },
@@ -23,16 +26,17 @@ module.exports = {
     babel(),
     resolve({ browser: true }), // browser: true for warning module
     commonjs(),
-    !dev &&
-      closure({
-        compilationLevel: 'SIMPLE',
-        languageIn: 'ECMASCRIPT5_STRICT',
-        languageOut: 'ECMASCRIPT5_STRICT',
-        env: 'CUSTOM',
-        rewritePolyfills: false,
-        applyInputSourceMaps: false,
-        processCommonJsModules: false,
-      }),
+    !dev && hackyGCC(),
+    // !dev &&
+    //   closure({
+    //     compilationLevel: 'SIMPLE',
+    //     languageIn: 'ECMASCRIPT5_STRICT',
+    //     languageOut: 'ECMASCRIPT5_STRICT',
+    //     env: 'CUSTOM',
+    //     rewritePolyfills: false,
+    //     applyInputSourceMaps: false,
+    //     processCommonJsModules: false,
+    //   }),
     logBundleSize(),
   ].filter(Boolean),
   external: [

@@ -135,8 +135,10 @@ export const useSyncScheduling = true;
 export const supportsHydration = true;
 export const scheduleDeferredCallback = window.requestIdleCallback;
 export const cancelDeferredCallback = window.cancelIdleCallback;
-export const shouldDeprioritizeSubtree = (type: string, props: Props) =>
-  !!props.hidden;
+
+export function shouldDeprioritizeSubtree(type: string, props: Props) {
+  return !!props.hidden;
+}
 
 export function commitUpdate(
   instance: Element,

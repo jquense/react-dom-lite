@@ -35,7 +35,6 @@ export function setInitialProps(
       if (typeof propValue === 'string' || typeof propValue === 'number') {
         domElement.textContent = `${propValue}`;
       }
-
       // Add DOM event listeners
     } else if ((match = propKey.match(isEventRegex))) {
       Events.listenTo(domElement, match[1], (propValue: any), null);
