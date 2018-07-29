@@ -52,122 +52,125 @@ function diffHydratedText(textNode: Text, text: string): boolean {
   return isDifferent;
 }
 
-export const SSRHydrationProd = {
-  canHydrateInstance(instance: Element, type: string): null | Element {
-    if (
-      instance.nodeType !== ELEMENT_NODE ||
-      type.toLowerCase() !== instance.nodeName.toLowerCase()
-    ) {
-      return null;
-    }
-    return instance;
-  },
+export function canHydrateInstance(
+  instance: Element,
+  type: string,
+): null | Element {
+  if (
+    instance.nodeType !== ELEMENT_NODE ||
+    type.toLowerCase() !== instance.nodeName.toLowerCase()
+  ) {
+    return null;
+  }
+  return instance;
+}
 
-  canHydrateTextInstance(instance: Element, text: string): null | Text {
-    if (text === '' || instance.nodeType !== TEXT_NODE) {
-      // Empty strings are not parsed by HTML so there won't be a correct match here.
-      return null;
-    }
-    return ((instance: any): Text);
-  },
+export function canHydrateTextInstance(
+  instance: Element,
+  text: string,
+): null | Text {
+  if (text === '' || instance.nodeType !== TEXT_NODE) {
+    // Empty strings are not parsed by HTML so there won't be a correct match here.
+    return null;
+  }
+  return ((instance: any): Text);
+}
 
-  getNextHydratableSibling(instance: Element | Text): null | Element {
-    let node = instance.nextSibling;
-    // Skip non-hydratable nodes.
-    while (
-      node &&
-      node.nodeType !== ELEMENT_NODE &&
-      node.nodeType !== TEXT_NODE
-    ) {
-      node = node.nextSibling;
-    }
-    return (node: any);
-  },
+export function getNextHydratableSibling(
+  instance: Element | Text,
+): null | Element {
+  let node = instance.nextSibling;
+  // Skip non-hydratable nodes.
+  while (
+    node &&
+    node.nodeType !== ELEMENT_NODE &&
+    node.nodeType !== TEXT_NODE
+  ) {
+    node = node.nextSibling;
+  }
+  return (node: any);
+}
 
-  getFirstHydratableChild(
-    parentInstance: DOMContainer | Element,
-  ): null | Element {
-    let next = parentInstance.firstChild;
-    // Skip non-hydratable nodes.
-    while (
-      next &&
-      next.nodeType !== ELEMENT_NODE &&
-      next.nodeType !== TEXT_NODE
-    ) {
-      next = next.nextSibling;
-    }
-    return ((next: any): Element);
-  },
+export function getFirstHydratableChild(
+  parentInstance: DOMContainer | Element,
+): null | Element {
+  let next = parentInstance.firstChild;
+  // Skip non-hydratable nodes.
+  while (
+    next &&
+    next.nodeType !== ELEMENT_NODE &&
+    next.nodeType !== TEXT_NODE
+  ) {
+    next = next.nextSibling;
+  }
+  return ((next: any): Element);
+}
 
-  hydrateInstance(
-    instance: Element,
-    type: string,
-    props: Props,
-    rootContainerInstance: DOMContainer,
-    hostContext: HostContext,
-    internalInstanceHandle: OpaqueHandle,
-  ): null | Array<[string, any]> {
-    cacheHandleByInstance(instance, internalInstanceHandle);
-    return diffHydratedProperties(
-      instance,
-      type,
-      props,
-      /* hostContext, */
-      /* rootContainerInstance,*/
-    );
-  },
+export function hydrateInstance(
+  instance: Element,
+  type: string,
+  props: Props,
+  rootContainerInstance: DOMContainer,
+  hostContext: HostContext,
+  internalInstanceHandle: OpaqueHandle,
+): null | Array<[string, any]> {
+  cacheHandleByInstance(instance, internalInstanceHandle);
+  return diffHydratedProperties(
+    instance,
+    type,
+    props,
+    /* hostContext, */
+    /* rootContainerInstance,*/
+  );
+}
 
-  hydrateTextInstance(
-    textInstance: Text,
-    text: string,
-    internalInstanceHandle: OpaqueHandle,
-  ): boolean {
-    cacheHandleByInstance(
-      ((textInstance: any): Element),
-      internalInstanceHandle,
-    );
-    return diffHydratedText(textInstance, text);
-  },
+export function hydrateTextInstance(
+  textInstance: Text,
+  text: string,
+  internalInstanceHandle: OpaqueHandle,
+): boolean {
+  cacheHandleByInstance(((textInstance: any): Element), internalInstanceHandle);
+  return diffHydratedText(textInstance, text);
+}
 
-  didNotMatchHydratedContainerTextInstance() {},
-  // parentContainer: DOMContainer,
-  // textInstance: Text,
-  // text: string,
+export function didNotMatchHydratedContainerTextInstance() {}
+// parentContainer: DOMContainer,
+// textInstance: Text,
+// text: string,
 
-  didNotMatchHydratedTextInstance() {},
-  // parentType: string,
-  // parentProps: Props,
-  // parentInstance: Element,
-  // textInstance: Text,
-  // text: string,
+export function didNotMatchHydratedTextInstance() {}
+// parentType: string,
+// parentProps: Props,
+// parentInstance: Element,
+// textInstance: Text,
+// text: string,
 
-  didNotHydrateContainerInstance() {},
-  // parentContainer: DOMContainer,
-  // instance: Element | Text,
+export function didNotHydrateContainerInstance() {}
+// parentContainer: DOMContainer,
+// instance: Element | Text,
 
-  didNotHydrateInstance() {},
-  // parentType: string,
-  // parentProps: Props,
-  // parentInstance: Element,
-  // instance: Element | Text,
+export function didNotHydrateInstance() {}
+// parentType: string,
+// parentProps: Props,
+// parentInstance: Element,
+// instance: Element | Text,
 
-  didNotFindHydratableContainerInstance() {},
-  // parentContainer: DOMContainer,
-  // type: string,
+export function didNotFindHydratableContainerInstance() {}
+// parentContainer: DOMContainer,
+// type: string,
 
-  didNotFindHydratableContainerTextInstance() {},
-  // parentContainer: DOMContainer,
-  // text: string,
+export function didNotFindHydratableContainerTextInstance() {}
+// parentContainer: DOMContainer,
+// text: string,
 
-  didNotFindHydratableInstance() {},
-  // parentType: string,
-  // parentProps: Props,
-  // parentInstance: Element,
-  // type: string,
+export function didNotFindHydratableInstance() {}
+// parentType: string,
+// parentProps: Props,
+// parentInstance: Element,
+// type: string,
 
-  didNotFindHydratableTextInstance() {},
-  // parentType: string,
-  // parentProps: Props,
-  // parentInstance: Element,
-  // text: string,
-};
+export function didNotFindHydratableTextInstance() {}
+// parentType: string,
+// parentProps: Props,
+// parentInstance: Element,
+// text: string,
