@@ -78,19 +78,27 @@ function inlineHostConfigDeclarations(bundle, srcReconcilerJS, sourceMapJSON) {
     });
 
     let hostConfigProps;
+    let hostConfigKeyValMap = new Map();
+    let hostConfigValDefinitionMap = new Map();
     traverse.default(ast, {
       VariableDeclaration(path) {
         const { node: { declarations } } = path;
-        let isHostConfigDeclaration = false;
-        declarations.forEach(declarator => {
+        const sansHostConfigDeclarations = declarations.filter(declarator => {
           if (declarator.id.name === hostConfigIdentifier) {
-            isHostConfigDeclaration = true;
-            hostConfigProps = declarator.init.arguments[0].properties.map(
-              p => p.value.name,
-            );
+            hostConfigProps = declarator.init.arguments[0].properties.map(p => {
+              hostConfigKeyValMap.set(p.key.name, p.value.name);
+              hostConfigValDefinitionMap.set(p.value.name, null);
+              return p.value.name;
+            });
+            return false;
+          } else {
+            return true;
           }
         });
-        if (isHostConfigDeclaration) {
+
+        if (sansHostConfigDeclarations.length) {
+          path.node.declarations = sansHostConfigDeclarations;
+        } else {
           path.remove();
         }
       },
@@ -101,8 +109,9 @@ function inlineHostConfigDeclarations(bundle, srcReconcilerJS, sourceMapJSON) {
     traverse.default(ast, {
       VariableDeclaration(path) {
         const { node: { declarations } } = path;
-        declarations.forEach(declarator => {
-          // All global host config props
+        const sansHostConfigDeclarations = declarations.filter(declarator => {
+          // Only global host config props
+
           if (
             !declarator.init ||
             declarator.init.type !== 'MemberExpression' ||
@@ -111,52 +120,111 @@ function inlineHostConfigDeclarations(bundle, srcReconcilerJS, sourceMapJSON) {
           ) {
             if (hostConfigProps.indexOf(declarator.id.name) !== -1) {
               hostConfigDeclarations.push(declarator);
+              hostConfigValDefinitionMap.set(declarator.id.name, declarator);
+              return false;
             }
           }
+
+          return true;
         });
+
+        if (sansHostConfigDeclarations.length) {
+          path.node.declarations = sansHostConfigDeclarations;
+        } else {
+          path.remove();
+        }
       },
       FunctionDeclaration(path) {
         const { node } = path;
         if (hostConfigProps.indexOf(node.id.name) !== -1) {
           hostConfigDeclarations.push(node);
+          hostConfigValDefinitionMap.set(node.id.name, node);
+          path.remove();
         }
       },
     });
+
+    const hostConfigDeclarationsMap = hostConfigDeclarations.reduce(
+      (acc, d) => {
+        acc.set(d.id.name, d);
+        return acc;
+      },
+      new Map(),
+    );
 
     // Inline the declarations in reconciler($$$hostConfig)
     traverse.default(ast, {
       FunctionExpression(path) {
         const { node } = path;
         if (node.id && node.id.name === '$$$reconciler') {
+          // console.log(path.node.params[0].name);
+          // hostConfigDeclarations
+          //   .filter(d => d.type === 'FunctionDeclaration').forEach(d => {
+          //     path.get('body').unshiftContainer(
+          //       'body',
+          //       d
+          //     );
+          //   })
           path.traverse({
             VariableDeclaration(vPath) {
               const { node: { declarations } } = vPath;
 
-              const declarationVarNames = declarations.map(d => d.id.name);
-              let hostConfigVarDeclarators = hostConfigDeclarations.filter(
-                d =>
-                  d.type === 'VariableDeclarator' &&
-                  declarationVarNames.indexOf(d.id.name) !== -1,
-              );
-              let hostConfigFunctionDeclarations = hostConfigDeclarations.filter(
-                d =>
-                  d.type === 'FunctionDeclaration' &&
-                  declarationVarNames.indexOf(d.id.name) !== -1,
-              );
+              // let nonHostConfigDeclarators = declarations.filter(
+              //   declarator =>
+              //     !declarator.init ||
+              //     declarator.init.type !== 'MemberExpression' ||
+              //     !declarator.init.object ||
+              //     declarator.init.object.name !== '$$$hostConfig' ||
+              //     hostConfigProps.indexOf(declarator.init.property.name) === -1,
+              // );
 
-              let nonHostConfigDeclarators = declarations.filter(
-                declarator =>
-                  hostConfigProps.indexOf(declarator.id.name) === -1,
-              );
+              // if (declarations.length !== nonHostConfigDeclarators.length) {
+              //   vPath.node.declarations = nonHostConfigDeclarators.concat(
+              //     hostConfigDeclarations
+              //       .filter(d => d.type === 'VariableDeclarator')
+              //   );
+              // }
 
-              const inlinedHostConfigDeclarators = hostConfigVarDeclarators.concat(
-                nonHostConfigDeclarators,
-              );
-              if (inlinedHostConfigDeclarators.length) {
-                vPath.node.declarations = inlinedHostConfigDeclarators;
-              } else {
-                vPath.replaceWithMultiple(hostConfigFunctionDeclarations);
-              }
+              let rollupName;
+              const hostConfigResolvedDecs = declarations.map(declarator => {
+                if (
+                  declarator.init &&
+                  declarator.init.type === 'MemberExpression' &&
+                  declarator.init.object &&
+                  declarator.init.object.name === '$$$hostConfig' &&
+                  !!(rollupName = hostConfigKeyValMap.get(
+                    declarator.init.property.name,
+                  ))
+                ) {
+                  const fn = hostConfigValDefinitionMap.get(rollupName);
+
+                  const {
+                    type,
+                    id,
+                    params,
+                    body,
+                    generator,
+                    async: isAsync,
+                  } = fn;
+                  if (type === 'FunctionDeclaration') {
+                    declarator.init = t.functionExpression(
+                      id,
+                      params || [],
+                      body,
+                      generator,
+                      isAsync,
+                    );
+                  } else if (type === 'VariableDeclarator') {
+                    declarator.init = fn.init;
+                  } else {
+                    throw new Error('Shouldnt be here');
+                  }
+                }
+
+                return declarator;
+              });
+
+              vPath.node.declarations = hostConfigResolvedDecs;
             },
           });
         }
@@ -177,17 +245,23 @@ module.exports.hackyGCC = function(options) {
       }
     },
     ongenerate(options, { code, map }) {
-      const fileName = options.file.replace('.js', '.min.js');
+      const fileName = options.file.replace('.temp.js', '.min.js');
       gcc(
         options.file,
         inlineHostConfigDeclarations(code, srcReconcilerJS, map),
-      ).then(compiledCode => {
-        fs.writeFileSync(fileName, compiledCode);
-        const size = maxmin(compiledCode, compiledCode, true);
-        console.log(
-          `Created bundle ${fileName}: ${size.substr(size.indexOf(' ? ') + 3)}`,
-        );
-      });
+      )
+        .then(compiledCode => {
+          fs.writeFileSync(fileName, compiledCode);
+          const size = maxmin(compiledCode, compiledCode, true);
+          console.log(
+            `Created bundle ${fileName}: ${size.substr(
+              size.indexOf(' ? ') + 3,
+            )}`,
+          );
+        })
+        .catch(e => {
+          console.error('Failed to bundle');
+        });
     },
   };
 };
@@ -205,7 +279,6 @@ function gcc(fileName, source) {
       env: 'CUSTOM',
       rewritePolyfills: false,
       applyInputSourceMaps: false,
-      processCommonJsModules: false,
     });
 
     const compilerProcess = closureCompiler.run(
@@ -213,7 +286,6 @@ function gcc(fileName, source) {
         {
           path: fileName,
           src: source,
-          sourceMap: null, // optional input source map
         },
       ],
       (exitCode, stdOut, stdErr) => {
@@ -224,24 +296,28 @@ function gcc(fileName, source) {
   });
 }
 
-// const MAIN_FILE_CONTENTS = readSource(
-//   join(
-//     __dirname,
-//     'react-dom-lite.js'
+// gcc(
+//   'lib/react-dom-lite.js',
+//   inlineHostConfigDeclarations(
+//     readSource('./lib/react-dom-lite.js'),
+//     readSource('./src/Reconciler.js'),
+//     JSON.parse(readSource('./lib/react-dom-lite.js.map'))
+//   ),
+// ).then(compiledCode => {
+//   const fileName = 'lib/react-dom-lite.min.js';
+//   fs.writeFileSync(fileName, compiledCode);
+//   const size = maxmin(compiledCode, compiledCode, true);
+//   console.log(
+//     `Created bundle ${fileName}: ${size.substr(size.indexOf(' ? ') + 3)}`,
+//   );
+// }).catch(e => {
+//   console.error('Failed to bundle', e);
+// });
+
+// console.log(
+//   inlineHostConfigDeclarations(
+//     readSource('../lib/react-dom-lite.temp.js'),
+//     readSource('../src/Reconciler.js'),
+//     JSON.parse(readSource('../lib/react-dom-lite.temp.js.map'))
 //   )
-// );
-
-// if (!process.env.SRC_RECONCILER_PATH) {
-//   console.log('No SRC_RECONCILER_PATH in env')
-// }
-
-// const result = inlineHostConfigDeclarations(
-//   parse(MAIN_FILE_CONTENTS)
-//   process.env.SRC_RECONCILER_PATH,
-//   join(
-//     __dirname,
-//     'react-dom-lite.js.map'
-//   )
-// );
-
-// write('tmp.js', result);
+// )

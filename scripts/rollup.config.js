@@ -14,7 +14,7 @@ module.exports = {
   input: 'src/index.js',
   output: {
     sourcemap: true, // Needed to inline the host config functions later
-    file: dev ? 'lib/react-dom-lite.js' : 'lib/react-dom-lite.min.js',
+    file: dev ? 'lib/react-dom-lite.js' : 'lib/react-dom-lite.temp.js',
     format: 'cjs',
   },
   plugins: [
@@ -26,7 +26,7 @@ module.exports = {
     babel(),
     resolve({ browser: true }), // browser: true for warning module
     commonjs(),
-    !dev && hackyGCC(),
+    !dev && hackyGCC(), // Yet to figure out obtaining sourcemaps created by rollup from transformBundle. Using generateBundle for now as a stopgap
     // !dev &&
     //   closure({
     //     compilationLevel: 'SIMPLE',
@@ -36,8 +36,7 @@ module.exports = {
     //     rewritePolyfills: false,
     //     applyInputSourceMaps: false,
     //     processCommonJsModules: false,
-    //   }),
-    logBundleSize(),
+    //   })
   ].filter(Boolean),
   external: [
     'dom-helpers/ownerDocument',
