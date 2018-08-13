@@ -1,12 +1,11 @@
 {
   "name": "react-dom-lite",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "main": "lib/react-dom-lite.js",
   "license": "MIT",
   "scripts": {
     "build:dev": "ROLLUP=1 rollup -c scripts/rollup.config.js",
-    "build:prod":
-      "ROLLUP=1 NODE_ENV=production rollup -c scripts/rollup.config.js",
+    "build:prod": "ROLLUP=1 NODE_ENV=production rollup -c scripts/rollup.config.js",
     "build": "npm run build:dev && npm run build:prod",
     "watch": "npm run babel -- --watch",
     "examples": "NODE_ENV=production webpack --bail",
@@ -18,15 +17,28 @@
     "tdd": "jest --watch",
     "flow": "flow"
   },
-  "files": ["lib"],
+  "files": [
+    "lib"
+  ],
   "lint-staged": {
-    "src/**/*.{js}": ["eslint"],
-    "*.{js,json,css,md}": ["prettier --write", "git add"]
+    "src/**/*.{js}": [
+      "eslint"
+    ],
+    "*.{js,json,css,md}": [
+      "prettier --write",
+      "git add"
+    ]
   },
-  "eslintIgnore": ["flow-typed"],
+  "eslintIgnore": [
+    "flow-typed"
+  ],
   "jest": {
-    "roots": ["<rootDir>/src"],
-    "setupFiles": ["./test/setup.js"],
+    "roots": [
+      "<rootDir>/src"
+    ],
+    "setupFiles": [
+      "./test/setup.js"
+    ],
     "setupTestFrameworkScriptFile": "./test/setupTests.js",
     "moduleNameMapper": {
       "react-dom-lite/test-utils": "<rootDir>/src/test-utils.js",
