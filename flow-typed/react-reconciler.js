@@ -24,8 +24,8 @@ type ReactText = string | number;
 type ReactEmpty = null | void | boolean;
 
 type ReactCall<V> = {
-  $$typeof: Symbol | number,
-  type: Symbol | number,
+  $$typeof: symbol | number,
+  type: symbol | number,
   key: null | string,
   ref: null,
   props: {
@@ -37,8 +37,8 @@ type ReactCall<V> = {
 };
 
 type ReactReturn<V> = {
-  $$typeof: Symbol | number,
-  type: Symbol | number,
+  $$typeof: symbol | number,
+  type: symbol | number,
   key: null,
   ref: null,
   props: {
@@ -47,7 +47,7 @@ type ReactReturn<V> = {
 };
 
 type ReactPortal = {
-  $$typeof: Symbol | number,
+  $$typeof: symbol,
   key: null | string,
   containerInfo: any,
   children: ReactNodeList,

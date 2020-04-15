@@ -1,6 +1,6 @@
 // @flow
 
-import css from 'dom-helpers/style';
+import css from 'dom-helpers/css';
 import invariant from 'invariant';
 import { setValueOnElement } from './DOMProperties';
 import { isEventRegex } from './DOMConfig';

@@ -58,6 +58,10 @@ const hostConfig: HostConfig<
     return { isSvg: getSvgContext(isSvg, type) };
   },
 
+  getPublicInstance(instance): * {
+    return instance;
+  },
+
   appendInitialChild(parentInstance: Element, child: Element | Text): void {
     parentInstance.appendChild(child);
   },
@@ -154,69 +158,72 @@ const hostConfig: HostConfig<
   cancelDeferredCallback: window.cancelIdleCallback,
   shouldDeprioritizeSubtree: (type: string, props: Props) => !!props.hidden,
 
-  mutation: {
-    commitUpdate(
-      instance: Element,
-      preparedUpdateQueue: Array<[string, any]>,
-      type,
-      oldProps,
-      _,
-      { isSvg },
-    ): void {
-      DOMComponent.updateProps(instance, preparedUpdateQueue, oldProps, isSvg);
-    },
-    commitMount() {
-      // noop
-    },
+  // MUTATION
+  supportsMutation: true,
 
-    commitTextUpdate(textInstance: Text, oldText: string, newText: string) {
-      textInstance.nodeValue = newText;
-    },
-
-    resetTextContent(domElement: Element): void {
-      domElement.textContent = '';
-    },
-
-    appendChild(parentInstance: Element, child: Element | Text): void {
-      parentInstance.appendChild(child);
-    },
-
-    appendChildToContainer(
-      parentInstance: DOMContainer,
-      child: Element | Text,
-    ): void {
-      parentInstance.appendChild(child);
-    },
-    insertBefore(
-      parentInstance: Element,
-      child: Element | Text,
-      beforeChild: Element | Text,
-    ): void {
-      parentInstance.insertBefore(child, beforeChild);
-    },
-
-    insertInContainerBefore(
-      container: DOMContainer,
-      child: Element | Text,
-      beforeChild: Element | Text,
-    ): void {
-      container.insertBefore(child, beforeChild);
-    },
-
-    removeChild(parentInstance: Element, child: Element | Text): void {
-      parentInstance.removeChild(child);
-    },
-    removeChildFromContainer(
-      parentInstance: DOMContainer,
-      child: Element | Text,
-    ): void {
-      parentInstance.removeChild(child);
-    },
+  commitUpdate(
+    instance: Element,
+    preparedUpdateQueue: Array<[string, any]>,
+    type,
+    oldProps,
+    _,
+    { isSvg },
+  ): void {
+    DOMComponent.updateProps(instance, preparedUpdateQueue, oldProps, isSvg);
+  },
+  commitMount() {
+    // noop
   },
 
-  hydration: getHydrationConfig(),
+  commitTextUpdate(textInstance: Text, oldText: string, newText: string) {
+    textInstance.nodeValue = newText;
+  },
+
+  resetTextContent(domElement: Element): void {
+    domElement.textContent = '';
+  },
+
+  appendChild(parentInstance: Element, child: Element | Text): void {
+    parentInstance.appendChild(child);
+  },
+
+  appendChildToContainer(
+    parentInstance: DOMContainer,
+    child: Element | Text,
+  ): void {
+    parentInstance.appendChild(child);
+  },
+  insertBefore(
+    parentInstance: Element,
+    child: Element | Text,
+    beforeChild: Element | Text,
+  ): void {
+    parentInstance.insertBefore(child, beforeChild);
+  },
+
+  insertInContainerBefore(
+    container: DOMContainer,
+    child: Element | Text,
+    beforeChild: Element | Text,
+  ): void {
+    container.insertBefore(child, beforeChild);
+  },
+
+  removeChild(parentInstance: Element, child: Element | Text): void {
+    parentInstance.removeChild(child);
+  },
+  removeChildFromContainer(
+    parentInstance: DOMContainer,
+    child: Element | Text,
+  ): void {
+    parentInstance.removeChild(child);
+  },
+
+  // Hydration
+  ...getHydrationConfig(),
 };
 
+// $FlowFixMe
 const DOMLiteReconciler = Reconciler(hostConfig);
 
 DOMLiteReconciler.injectIntoDevTools({

@@ -1,6 +1,6 @@
 // @flow
 
-import hyphenate from 'dom-helpers/util/hyphenate';
+import hyphenate from 'dom-helpers/hyphenate';
 
 import {
   isNamespaced,
@@ -56,9 +56,12 @@ export function setValueOnElement(
       value = String(value);
     } else if (value === true) {
       value = '';
+    } else if (value === false) {
+      value = undefined;
     }
 
-    if (ns) domElement.setAttributeNS(ns, attributeName, value);
-    else domElement.setAttribute(attributeName, value);
+    if (ns) {
+      if (value) domElement.setAttributeNS(ns, attributeName, value);
+    } else domElement.setAttribute(attributeName, value);
   }
 }

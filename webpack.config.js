@@ -13,7 +13,7 @@ module.exports = {
   },
   resolve: {
     alias: {
-      'react-dom-lite$': `${__dirname}/lib/react-dom-lite.js`,
+      'react-dom-lite$': `${__dirname}/src/index.js`,
     },
   },
   plugins: [
@@ -21,9 +21,10 @@ module.exports = {
       template: `${__dirname}/examples/index.html`,
     }),
     plugins.define({
+      __DEV__: true,
       __SVG__: false,
     }),
-    plugins.extractText(),
+    plugins.extractCss(),
     new CompressionPlugin(),
   ],
 };

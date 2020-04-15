@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import * as DomLite from 'react-dom-lite';
 
 class Counter extends React.Component {
@@ -10,7 +10,7 @@ class Counter extends React.Component {
   handleCount() {
     this.setState(({ count }) => {
       return {
-        count: count + 1
+        count: count + 1,
       };
     });
   }
@@ -35,8 +35,7 @@ class Counter extends React.Component {
 
 class Select extends React.Component {
   state = { value: 3 };
-  handleChange = e => {
-    throw new Error();
+  handleChange = (e) => {
     this.setState({ value: e.target.value });
   };
   render() {
@@ -51,27 +50,24 @@ class Select extends React.Component {
   }
 }
 
-class Form extends React.Component {
-  state = {};
-  handleNameChange = e => {
-    this.setState({ name: e.target.value });
+function Form() {
+  const [name, setName] = useState('');
+
+  const handleNameChange = (e) => {
+    setName(e.target.value);
     DomLite.findDOMNode(this);
   };
-  render() {
-    return (
-      <form>
-        <Select />
-        <input
-          name="name"
-          onInput={this.handleNameChange}
-          value={this.state.name}
-        />
-        <button type="button" onClick={() => this.forceUpdate()}>
-          Click
-        </button>
-      </form>
-    );
-  }
+
+  return (
+    <form>
+      <Select />
+      <input name="name" onInput={handleNameChange} value={name} />
+      <button type="button">Click</button>
+      <div
+        style={{ backgroundColor: 'red', height: '200px', width: '100px' }}
+      ></div>
+    </form>
+  );
 }
 
 DomLite.render(<Form />, document.getElementById('app'));

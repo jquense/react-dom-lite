@@ -79,7 +79,7 @@ function findDOMNode(
 ): null | Element | Text {
   if (componentOrElement == null) return null;
 
-  if (componentOrElement.nodeType === 1 || componentOrElement === 3) {
+  if (componentOrElement.nodeType === 1 || componentOrElement.nodeType === 3) {
     return (componentOrElement: any);
   }
 
@@ -93,10 +93,7 @@ function createPortal(
   key?: string,
 ): ReactPortal {
   return {
-    $$typeof:
-      typeof Symbol === 'function' && Symbol.for
-        ? Symbol.for('react.portal')
-        : 0xeaca,
+    $$typeof: Symbol.for('react.portal'),
     key: key == null ? null : String(key),
     children,
     containerInfo: container,
